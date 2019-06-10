@@ -29,7 +29,7 @@ This function should only modify configuration layer settings."
    ;; If non-nil layers with lazy install support are lazy installed.
    ;; List of additional paths where to look for configuration layers.
    ;; Paths must have a trailing slash (i.e. `~/.mycontribs/')
-   dotspacemacs-configuration-layer-path '()
+   dotspacemacs-configuration-layer-path '("~/dotfiles/spacemacs-layers/")
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
    '(csv
@@ -73,6 +73,7 @@ This function should only modify configuration layer settings."
      ;; private layers
      xah-fly-keys
      ;; common-lisp-sly
+     picolisp
      )
 
    ;; List of additional packages that will be installed without being
@@ -510,7 +511,6 @@ Set `spaceline-highlight-face-func' to
   (with-eval-after-load 'org
     (org-babel-do-load-languages
      'org-babel-load-languages (quote ((emacs-lisp . t)
-                                       (picolisp . t)
                                        (dot . t)))))
 
   (require 'dash)
@@ -559,10 +559,10 @@ Set `spaceline-highlight-face-func' to
   ;; add the following expressions to your .emacs and adapt them
   ;; according to your set-up:
 
-  (add-to-list 'load-path "/usr/share/picolisp/lib/el")
+  ;; (add-to-list 'load-path "/usr/share/picolisp/lib/el")
   ;; (load "tsm.el") ;; Picolisp TransientSymbolsMarkup (*Tsm)
-  (autoload 'run-picolisp "inferior-picolisp")
-  (autoload 'picolisp-mode "picolisp" "Major mode for editing Picolisp." t)
+  ;; (autoload 'run-picolisp "inferior-picolisp")
+  ;; (autoload 'picolisp-mode "picolisp" "Major mode for editing Picolisp." t)
 
   ;; pil is more modern than plmod
   ;; (setq picolisp-program-name "<path-to>/picoLisp/plmod")
@@ -572,23 +572,18 @@ Set `spaceline-highlight-face-func' to
   ;; So in order to get the correct file-association for picolisp
   ;; files you'll have to also add this:
 
-  (add-to-list 'auto-mode-alist '("\\.l$" . picolisp-mode))
+  ;; (add-to-list 'auto-mode-alist '("\\.l$" . picolisp-mode))
 
   ;; If you want, you can add a few hooks for convenience:
-  (add-hook 'picolisp-mode-hook
-            (lambda ()
-              (paredit-mode +1) ;; Loads paredit mode automatically
-              (tsm-mode) ;; Enables TSM
-              (define-key picolisp-mode-map (kbd "RET") 'newline-and-indent)
-              (define-key picolisp-mode-map (kbd "C-h") 'paredit-backward-delete) ) )
+  ;; (add-hook 'picolisp-mode-hook
+            ;; (lambda ()
+              ;; (paredit-mode +1) ;; Loads paredit mode automatically
+              ;; (tsm-mode) ;; Enables TSM
+              ;; (define-key picolisp-mode-map (kbd "RET") 'newline-and-indent)
+              ;; (define-key picolisp-mode-map (kbd "C-h") 'paredit-backward-delete) ) )
 
   ;; TODO remove conflicting ; key paredit binding in xfk layers
   (add-hook 'paredit-mode-hook (lambda () (define-key paredit-mode-map ";" nil)))
-
-  ;; TODO make picolisp layer
-  (with-eval-after-load 'smartparens
-    (sp-local-pair 'inferior-picolisp-mode "'" nil :actions nil)
-    (sp-local-pair 'picolisp-mode "'" nil :actions nil))
 
   (setq inferior-lisp-program "/usr/bin/clisp")
   )
