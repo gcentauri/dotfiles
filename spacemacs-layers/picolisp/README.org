@@ -12,23 +12,32 @@
 
 * Description
 This layer adds support for the PicoLisp language. By default it will use the
-=picolisp-mode= made available through MELPA by [[https://github.com/flexibeast/picolisp-mode][flexibeast]]. Future versions
-of this layer plan to support the PicoLisp distribution's =picolisp-mode=
-as well.
-
+=picolisp-mode= provided on GitHub by [[https://github.com/tj64/picolisp-mode][tj64]].
 ** Features:
-  - Syntax highlighting
-  - Comint-based pil REPL buffers
-  - Quick access to documentation for symbol at point
+  - inferior picolisp process
+  - transient symbol markup mode
 
 * Install
 To use this configuration layer, add it to your =~/.spacemacs=. You will need to
 add =picolisp= to the existing =dotspacemacs-configuration-layers= list in this
 file.
 
+By default the transient symbol markup mode (=tsm-mode=) is enabled. To turn it
+off configure the layer like this:
+
+#+begin_src emacs-lisp
+  (defun dotspacemacs-configuration-layers ()
+     '((picolisp :variables picolisp-enable-transient-symbol-markup nil)))
+#+end_src
+
 * Key bindings
 
-| Key Binding | Description              |
-|-------------+--------------------------|
-| ~SPC m d~   | Describe symbol at point |
-| ~SPC m '~   | Start picolisp-repl      |
+| Key Binding | Description                 |
+|-------------+-----------------------------|
+| ~SPC m '~   | Start picolisp-repl         |
+| ~SPC m d~   | send definition             |
+| ~SPC m D~   | send definition and go      |
+| ~SPC m e~   | send last sexp              |
+| ~SPC m l~   | select file to load in repl |
+| ~SPC m r~   | send region                 |
+| ~SPC m R~   | send region and go          |

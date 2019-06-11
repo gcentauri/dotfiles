@@ -9,13 +9,12 @@
 ;;
 ;;; License: GPLv3
 
-;;; Commentary:
-
 (defconst picolisp-packages
   '(
-    (inferior-picolisp :location local)
+    ;; (inferior-picolisp :location local)
     org
-    picolisp-mode
+    (picolisp-mode :location (recipe :fetcher github
+                                     :repo "tj64/picolisp-mode"))
     smartparens
     ))
 
@@ -23,8 +22,8 @@
   (spacemacs|use-package-add-hook org
     :post-config (add-to-list 'org-babel-load-languages '(picolisp . t))))
 
-(defun picolisp/init-inferior-picolisp ()
-  (use-package inferior-picolisp))
+;; (defun picolisp/init-inferior-picolisp ()
+  ;; (use-package inferior-picolisp))
 
 (defun picolisp/init-picolisp-mode ()
   (use-package picolisp-mode
@@ -34,13 +33,22 @@
     :init
     (progn
       (spacemacs/set-leader-keys-for-major-mode 'picolisp-mode
-        "d" 'picolisp-describe-symbol
-        "'" 'picolisp-repl
-        ))))
+        ;; "d" 'picolisp-describe-symbol
+        "'" 'run-picolisp
+        "l" 'picolisp-load-file
+        "d" 'picolisp-send-definition
+        "D" 'picolisp-send-definition-and-go
+        "e" 'picolisp-send-last-sexp
+        "r" 'picolisp-send-region
+        "R" 'picolisp-send-region-and-go
+        ))
+    (when picolisp-enable-transient-symbol-markup
+      (add-hook 'picolisp-mode-hook (lambda () (tsm-mode))))
+    ))
 
 (defun picolisp/pre-init-smartparens ()
   (spacemacs|use-package-add-hook smartparens
     :post-config
-    (sp-local-pair 'picolisp-repl-mode "'" nil :actions nil)))
+    (sp-local-pair 'inferior-picolisp-mode "'" nil :actions nil)))
 
 ;;; packages.el ends here
