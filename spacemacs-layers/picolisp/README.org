@@ -11,8 +11,10 @@
 - [[#key-bindings][Key bindings]]
 
 * Description
-This layer adds support for the PicoLisp language. By default it will use the
-=picolisp-mode= provided on GitHub by [[https://github.com/tj64/picolisp-mode][tj64]].
+This layer adds support for the PicoLisp language. It uses a hybrid mode combining
+the =picolisp-mode= provided on GitHub by [[https://github.com/tj64/picolisp-mode][tj64]] with the documentation features from
+[[https://github.com/flexibeast/picolisp-mode][Alexis' picolisp-mode]].
+
 ** Features:
   - inferior picolisp process
   - transient symbol markup mode
@@ -34,6 +36,7 @@ off configure the layer like this:
 
 | Key Binding | Description                 |
 |-------------+-----------------------------|
+| ~SPC m h~   | Describe symbol at point    |
 | ~SPC m '~   | Start picolisp-repl         |
 | ~SPC m d~   | send definition             |
 | ~SPC m D~   | send definition and go      |
