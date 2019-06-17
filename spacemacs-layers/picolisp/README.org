@@ -1,0 +1,48 @@
+#+TITLE: picolisp layer
+#+TAGS: layer|lisp|programming|multi-paradigm
+
+# The maximum height of the logo should be 200 pixels.
+[[file:img/picolisp.png]]
+
+* Table of Contents                                        :TOC_4_gh:noexport:
+- [[#description][Description]]
+  - [[#features][Features:]]
+- [[#install][Install]]
+- [[#key-bindings][Key bindings]]
+
+* Description
+This layer adds support for the PicoLisp language. It uses a hybrid mode combining
+the =picolisp-mode= provided on GitHub by [[https://github.com/tj64/picolisp-mode][tj64]] with the documentation features from
+[[https://github.com/flexibeast/picolisp-mode][Alexis' picolisp-mode]].
+
+** Features:
+  - inferior picolisp process
+  - transient symbol markup mode
+  - describe symbol at point
+  - eldoc integration
+
+* Install
+To use this configuration layer, add it to your =~/.spacemacs=. You will need to
+add =picolisp= to the existing =dotspacemacs-configuration-layers= list in this
+file.
+
+By default the transient symbol markup mode (=tsm-mode=) is enabled. To turn it
+off configure the layer like this:
+
+#+begin_src emacs-lisp
+  (defun dotspacemacs-configuration-layers ()
+     '((picolisp :variables picolisp-enable-transient-symbol-markup nil)))
+#+end_src
+
+* Key bindings
+
+| Key Binding | Description                 |
+|-------------+-----------------------------|
+| ~SPC m h~   | Describe symbol at point    |
+| ~SPC m '~   | Start picolisp-repl         |
+| ~SPC m d~   | send definition             |
+| ~SPC m D~   | send definition and go      |
+| ~SPC m e~   | send last sexp              |
+| ~SPC m l~   | select file to load in repl |
+| ~SPC m r~   | send region                 |
+| ~SPC m R~   | send region and go          |
