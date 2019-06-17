@@ -18,6 +18,8 @@ the =picolisp-mode= provided on GitHub by [[https://github.com/tj64/picolisp-mod
 ** Features:
   - inferior picolisp process
   - transient symbol markup mode
+  - describe symbol at point
+  - eldoc integration
 
 * Install
 To use this configuration layer, add it to your =~/.spacemacs=. You will need to
