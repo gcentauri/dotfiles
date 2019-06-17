@@ -444,7 +444,7 @@ It should only modify the values of Spacemacs settings."
 
    ;; Either nil or a number of seconds. If non-nil zone out after the specified
    ;; number of seconds. (default nil)
-   dotspacemacs-zone-out-when-idle 60
+   dotspacemacs-zone-out-when-idle nil
 
    ;; Run `spacemacs/prettify-org-buffer' when
    ;; visiting README.org files of Spacemacs.
@@ -511,6 +511,7 @@ Set `spaceline-highlight-face-func' to
   (with-eval-after-load 'org
     (org-babel-do-load-languages
      'org-babel-load-languages (quote ((emacs-lisp . t)
+                                       (picolisp . t)
                                        (dot . t)))))
 
   (require 'dash)
