@@ -26,22 +26,22 @@ This function should only modify configuration layer settings."
    ;; a layer lazily. (default t)
    dotspacemacs-ask-for-lazy-installation t
 
-   ;; If non-nil layers with lazy install support are lazy installed.
    ;; List of additional paths where to look for configuration layers.
    ;; Paths must have a trailing slash (i.e. `~/.mycontribs/')
-   dotspacemacs-configuration-layer-path '("~/dotfiles/spacemacs-layers/")
+   dotspacemacs-configuration-layer-path '()
+
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(csv
+   '(racket
+     common-lisp
+     csv
      html
      yaml
      markdown
+     erlang
      elixir
      javascript
-     (ruby :variables
-           ruby-version-manager 'rvm
-           ruby-enable-enh-ruby-mode t
-           ruby-test-runner 'rspec)
+     (ruby :variables ruby-enable-enh-ruby-mode t )
      ruby-on-rails
      rust
      ;; ----------------------------------------------------------------
@@ -62,8 +62,8 @@ This function should only modify configuration layer settings."
      (shell :variables
             shell-default-shell 'eshell
             shell-enable-smart-eshell t
-            shell-default-height 30
-            shell-default-position 'bottom)
+            shell-default-width 30
+            shell-default-position 'right)
      ;; spell-checking
      syntax-checking
      (version-control :variables
@@ -72,8 +72,7 @@ This function should only modify configuration layer settings."
 
      ;; private layers
      xah-fly-keys
-     ;; common-lisp-sly
-     picolisp
+     ;; picolisp
      )
 
    ;; List of additional packages that will be installed without being
@@ -84,6 +83,8 @@ This function should only modify configuration layer settings."
    ;; '(your-package :location "~/path/to/your-package/")
    ;; Also include the dependencies as they will not be resolved automatically.
    dotspacemacs-additional-packages '(
+                                      coverage
+                                      goose-theme
                                       creamsody-theme
                                       base16-theme
                                       org-tree-slide
@@ -119,10 +120,10 @@ It should only modify the values of Spacemacs settings."
    ;; (default nil)
    dotspacemacs-enable-emacs-pdumper nil
 
-   ;; File path pointing to emacs 27.1 executable compiled with support
-   ;; for the portable dumper (this is currently the branch pdumper).
-   ;; (default "emacs-27.0.50")
-   dotspacemacs-emacs-pdumper-executable-file "emacs-27.0.50"
+   ;; Name of executable file pointing to emacs 27+. This executable must be
+   ;; in your PATH.
+   ;; (default "emacs")
+   dotspacemacs-emacs-pdumper-executable-file "emacs"
 
    ;; Name of the Spacemacs dump file. This is the file will be created by the
    ;; portable dumper in the cache directory under dumps sub-directory.
@@ -156,8 +157,8 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-use-spacelpa nil
 
    ;; If non-nil then verify the signature for downloaded Spacelpa archives.
-   ;; (default nil)
-   dotspacemacs-verify-spacelpa-archives nil
+   ;; (default t)
+   dotspacemacs-verify-spacelpa-archives t
 
    ;; If non-nil then spacemacs will check for updates at startup
    ;; when the current branch is not `develop'. Note that checking for
@@ -200,6 +201,11 @@ It should only modify the values of Spacemacs settings."
 
    ;; True if the home buffer should respond to resize events. (default t)
    dotspacemacs-startup-buffer-responsive t
+
+   ;; Default major mode for a new empty buffer. Possible values are mode
+   ;; names such as `text-mode'; and `nil' to use Fundamental mode.
+   ;; (default `text-mode')
+   dotspacemacs-new-empty-buffer-major-mode 'text-mode
 
    ;; Default major mode of the scratch buffer (default `text-mode')
    dotspacemacs-scratch-mode 'emacs-lisp-mode
@@ -333,6 +339,11 @@ It should only modify the values of Spacemacs settings."
    ;; (default nil) (Emacs 24.4+ only)
    dotspacemacs-maximized-at-startup nil
 
+   ;; If non-nil the frame is undecorated when Emacs starts up. Combine this
+   ;; variable with `dotspacemacs-maximized-at-startup' in OSX to obtain
+   ;; borderless fullscreen. (default nil)
+   dotspacemacs-undecorated-at-startup nil
+
    ;; A value from the range (0..100), in increasing opacity, which describes
    ;; the transparency level of a frame when it's active or selected.
    ;; Transparency can be toggled through `toggle-transparency'. (default 90)
@@ -360,10 +371,14 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-smooth-scrolling t
 
    ;; Control line numbers activation.
-   ;; If set to `t' or `relative' line numbers are turned on in all `prog-mode' and
-   ;; `text-mode' derivatives. If set to `relative', line numbers are relative.
+   ;; If set to `t', `relative' or `visual' then line numbers are enabled in all
+   ;; `prog-mode' and `text-mode' derivatives. If set to `relative', line
+   ;; numbers are relative. If set to `visual', line numbers are also relative,
+   ;; but lines are only visual lines are counted. For example, folded lines
+   ;; will not be counted and wrapped lines are counted as multiple lines.
    ;; This variable can also be set to a property list for finer control:
    ;; '(:relative nil
+   ;;   :visual nil
    ;;   :disabled-for-modes dired-mode
    ;;                       doc-view-mode
    ;;                       markdown-mode
@@ -371,6 +386,7 @@ It should only modify the values of Spacemacs settings."
    ;;                       pdf-view-mode
    ;;                       text-mode
    ;;   :size-limit-kb 1000)
+   ;; When used in a plist, `visual' takes precedence over `relative'.
    ;; (default nil)
    dotspacemacs-line-numbers nil
 
@@ -383,7 +399,7 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-smartparens-strict-mode nil
 
    ;; If non-nil pressing the closing parenthesis `)' key in insert mode passes
-   ;; over any automatically added closing parenthesis, bracket, quote, etc…
+   ;; over any automatically added closing parenthesis, bracket, quote, etc...
    ;; This can be temporary disabled by pressing `C-q' before `)'. (default nil)
    dotspacemacs-smart-closing-parenthesis nil
 
@@ -506,7 +522,7 @@ Set `spaceline-highlight-face-func' to
   (setq spaceline-highlight-face-func 'my-spaceline-highlight-face-modified)
 
   (spacemacs/toggle-vi-tilde-fringe-off)
-  (fringe-mode '(8 . 0))
+  (fringe-mode '(16 . 0))
 
   (with-eval-after-load 'org
     (org-babel-do-load-languages
@@ -586,7 +602,7 @@ Set `spaceline-highlight-face-func' to
   ;; TODO remove conflicting ; key paredit binding in xfk layers
   (add-hook 'paredit-mode-hook (lambda () (define-key paredit-mode-map ";" nil)))
 
-  (setq inferior-lisp-program "/usr/bin/clisp")
+  (setq inferior-lisp-program "/usr/bin/sbcl")
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
@@ -601,20 +617,18 @@ This function is called at the very end of Spacemacs initialization."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(ansi-term-color-vector
+   [unspecified "#2e2a31" "#d8137f" "#17ad98" "#dc8a0e" "#796af5" "#bb60ea" "#796af5" "#bcbabe"] t)
  '(evil-want-Y-yank-to-eol nil)
  '(package-selected-packages
    (quote
-    (sly-repl-ansi-color sly-macrostep sly all-the-icons-ivy csv-mode web-mode tagedit slim-mode scss-mode sass-mode pug-mode impatient-mode helm-css-scss haml-mode emmet-mode counsel-css company-web web-completion-data add-node-modules-path graphviz-dot-mode projectile-rails inflections feature-mode slime-company slime common-lisp-snippets picolisp-mode yaml-mode yasnippet-snippets xterm-color xah-fly-keys ws-butler writeroom-mode winum which-key wgrep web-beautify volatile-highlights vi-tilde-fringe uuidgen use-package treemacs-projectile toml-mode toc-org symon string-inflection spaceline-all-the-icons smex smeargle shell-pop seeing-is-believing rvm ruby-tools ruby-test-mode ruby-refactor ruby-hash-syntax rubocop rspec-mode robe restart-emacs request rbenv rake rainbow-delimiters racer prettier-js popwin persp-mode password-generator paradox overseer origami orgit org-tree-slide org-projectile org-present org-pomodoro org-mime org-download org-bullets org-brain open-junk-file ob-elixir nameless multi-term move-text mmm-mode minitest markdown-toc magit-svn magit-gitflow macrostep lorem-ipsum livid-mode link-hint json-navigator json-mode js2-refactor js-doc ivy-yasnippet ivy-xref ivy-purpose ivy-hydra indent-guide hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-make google-translate golden-ratio gnuplot gitignore-templates gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md fuzzy font-lock+ flycheck-rust flycheck-pos-tip flycheck-mix flycheck-credo flx-ido fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help enh-ruby-mode emojify emoji-cheat-sheet-plus elisp-slime-nav editorconfig dumb-jump dotenv-mode doom-modeline diminish diff-hl define-word creamsody-theme counsel-projectile company-tern company-statistics company-emoji column-enforce-mode clean-aindent-mode chruby centered-cursor-mode cargo bundler browse-at-remote base16-theme auto-yasnippet auto-highlight-symbol auto-compile alchemist aggressive-indent ace-link ac-ispell)))
+    (racket-mode faceup helm-gtags ggtags counsel-gtags company-quickhelp coverage edts erlang goose-theme all-the-icons-ivy csv-mode web-mode tagedit slim-mode scss-mode sass-mode pug-mode impatient-mode helm-css-scss haml-mode emmet-mode counsel-css company-web web-completion-data add-node-modules-path graphviz-dot-mode projectile-rails inflections feature-mode slime-company slime common-lisp-snippets picolisp-mode yaml-mode yasnippet-snippets xterm-color xah-fly-keys ws-butler writeroom-mode winum which-key wgrep web-beautify volatile-highlights vi-tilde-fringe uuidgen use-package treemacs-projectile toml-mode toc-org symon string-inflection spaceline-all-the-icons smex smeargle shell-pop seeing-is-believing rvm ruby-tools ruby-test-mode ruby-refactor ruby-hash-syntax rubocop rspec-mode robe restart-emacs request rbenv rake rainbow-delimiters racer prettier-js popwin persp-mode password-generator paradox overseer origami orgit org-tree-slide org-projectile org-present org-pomodoro org-mime org-download org-bullets org-brain open-junk-file ob-elixir nameless multi-term move-text mmm-mode minitest markdown-toc magit-svn magit-gitflow macrostep lorem-ipsum livid-mode link-hint json-navigator json-mode js2-refactor js-doc ivy-yasnippet ivy-xref ivy-purpose ivy-hydra indent-guide hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-make google-translate golden-ratio gnuplot gitignore-templates gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md fuzzy font-lock+ flycheck-rust flycheck-pos-tip flycheck-mix flycheck-credo flx-ido fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help enh-ruby-mode emojify emoji-cheat-sheet-plus elisp-slime-nav editorconfig dumb-jump dotenv-mode doom-modeline diminish diff-hl define-word creamsody-theme counsel-projectile company-tern company-statistics company-emoji column-enforce-mode clean-aindent-mode chruby centered-cursor-mode cargo bundler browse-at-remote base16-theme auto-yasnippet auto-highlight-symbol auto-compile alchemist aggressive-indent ace-link ac-ispell)))
+ '(paradox-github-token t)
  '(picolisp-documentation-directory "/home/grant/src/picoLisp/doc/")
  '(picolisp-pil-executable "/home/grant/src/picoLisp/pil")
  '(picolisp-pilindent-executable "/home/grant/src/picoLisp/bin/pilIndent")
  '(pos-tip-background-color "#1A3734")
  '(pos-tip-foreground-color "#FFFFC8")
- '(rspec-use-bundler-when-possible nil)
- '(rspec-use-rake-when-possible nil)
- '(rspec-use-rvm t t)
- '(rspec-use-spring-when-possible nil)
- '(ruby-test-rspec-options nil)
  '(treemacs-fringe-indicator-mode t)
  '(treemacs-git-mode (quote simple)))
 (custom-set-faces
