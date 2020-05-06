@@ -3,49 +3,50 @@
 ** list of packages (and themes) used in this config
 
 #+begin_src emacs-lisp
-(defvar my-packages
-      '(
-	;; utilities
-	all-the-icons
-	all-the-icons-ivy
-	company
-	company-box
-	counsel ;; includes ivy & swiper
-	counsel-projectile
-        docker
-	flycheck
-	ivy-hydra
-	lsp-ivy
-	lsp-mode
-	lsp-ui
-	magit
-        perspective
-	projectile
-	smartparens
-	smex
-        undo-tree
-	which-key
-	xah-fly-keys
+  (defvar my-packages
+        '(
+          ;; utilities
+          all-the-icons
+          all-the-icons-ivy
+          company
+          company-box
+          counsel ;; includes ivy & swiper
+          counsel-projectile
+          docker
+          flycheck
+          ivy-hydra
+          lsp-ivy
+          lsp-mode
+          lsp-ui
+          magit
+          perspective
+          projectile
+          smartparens
+          smex
+          undo-tree
+          which-key
+          xah-fly-keys
 
-	;; languages
+          ;; languages
 
-        ;; Common Lisp
-        sly
+          ;; Common Lisp
+          sly
 
-	;; Ruby
-	enh-ruby-mode
-        inf-ruby
-	minitest
-	))
+          ;; Ruby
+          enh-ruby-mode
+          inf-ruby
+          minitest
+          ))
 
-(defvar my-themes
-      '(
-	goose-theme
-        sublime-themes
-	sunburn-theme
-	tao-theme
-	zenburn-theme
-	))
+  (defvar my-themes
+        '(
+          goose-theme
+          lab-themes
+          sublime-themes
+          sunburn-theme
+          tao-theme
+          zenburn-theme
+          ))
 #+end_src
 
 ** Installing packages
@@ -314,7 +315,6 @@ Trying out sly instead of slime, since i'm all "modern" now with emacs.
      ;; ("u" . slime-eval-region)
      ))
 #+end_src
-
 
 ** TODO Javascript
 
