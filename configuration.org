@@ -73,13 +73,17 @@ get compiled this way.
 Basic gui element preferences:
 
 #+begin_src emacs-lisp
-(tool-bar-mode 0)
-(menu-bar-mode 0)
-(scroll-bar-mode 0)
-(fringe-mode '(12 . 0))
-(load-theme 'ritchie)
+  (tool-bar-mode 0)
+  (menu-bar-mode 0)
+  (scroll-bar-mode 0)
+  (fringe-mode '(12 . 0))
+  (load-theme 'ritchie)
+  (set-face-attribute 'trailing-whitespace nil
+                      :background
+                      (face-attribute 'font-lock-comment-face
+                                      :foreground))
+  (setq show-trailing-whitespace t)
 #+end_src
-
 
 ** Fonts
 
@@ -155,7 +159,7 @@ so when command mode is turned on, i also set a few keys to call Ivy commands.
 
 Setting up a personal key map to put my own shortcuts in. Currently bound to
 "SPC SPC" and "M-m" (like spacemacs). Currently, I'm associating keybindings
-with the section where they apply, but it may make more sense to have a 
+with the section where they apply, but it may make more sense to have a
 complete map represented somewhere.
 
 #+begin_src emacs-lisp
@@ -490,7 +494,7 @@ NOTE: this overwrites the binding for =projectile-find-file-in-directory=
 
 * TODO Turn off tabs
 
-been having issues in javascript modes where tabs are being inserted. 
+been having issues in javascript modes where tabs are being inserted.
 this may or may not be a solution
 
 #+begin_src emacs-lisp
