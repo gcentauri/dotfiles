@@ -13,11 +13,12 @@
           counsel ;; includes ivy & swiper
           counsel-projectile
           docker
+          eglot
           flycheck
           ivy-hydra
-          lsp-ivy
-          lsp-mode
-          lsp-ui
+          ;; lsp-ivy
+          ;; lsp-mode
+          ;; lsp-ui
           magit
           perspective
           projectile
@@ -233,7 +234,7 @@ any currently enabled theme before loading the next one.
 (define-key 'personal-key-map (kbd "t") 'load-theme)
 #+end_src
 
-* LSP
+* COMMENT LSP
 
 Settings to help improve performance of LSP mode (from the package readme)
 
@@ -326,8 +327,10 @@ Trying out sly instead of slime, since i'm all "modern" now with emacs.
 ** Ruby
 
 #+begin_src emacs-lisp
-(add-hook 'ruby-mode-hook #'enh-ruby-mode)
-(add-hook 'enh-ruby-mode-hook #'lsp)
+  (add-hook 'ruby-mode-hook #'enh-ruby-mode)
+  (add-hook 'enh-ruby-mode-hook 'eglot-ensure)
+  (add-hook 'enh-ruby-mode-hook 'flycheck-mode)
+  ;; (add-hook 'enh-ruby-mode-hook #'lsp)
 #+end_src
 
 *** Personal Ruby Keymap
