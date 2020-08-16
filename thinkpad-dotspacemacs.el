@@ -32,31 +32,52 @@ This function should only modify configuration layer settings."
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(racket
+   '(clojure
      common-lisp
      csv
+     docker
      html
-     yaml
-     markdown
+     (markdown :variables markdown-live-preview-engine 'vmd)
      erlang
      elixir
-     javascript
-     (ruby :variables ruby-enable-enh-ruby-mode t )
+     graphviz
+
+     ;; js stuff
+     (javascript :variables
+                 javascript-import-tool 'import-js
+                 javascript-backend 'lsp
+                 js2-basic-offset 2
+                 js-indent-level 2)
+     import-js
+     tern
+
+     racket
+     react
+     restclient
+     (ruby :variables
+           ruby-enable-enh-ruby-mode t
+           ruby-test-runner 'minitest
+           )
      ruby-on-rails
      rust
+     yaml
+
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press `SPC f e R' (Vim style) or
      ;; `M-m f e R' (Emacs style) to install them.
      ;; ----------------------------------------------------------------
-     ;; helm
-     ivy
+     helm
+     ;; ivy
      auto-completion
      ;; better-defaults
      emacs-lisp
      emoji
-     git
-     multiple-cursors
+     erc
+     (git :variables magit-diff-refine-hunk t)
+     github
+     lsp
+     ;; multiple-cursors
      treemacs
      org
      (shell :variables
@@ -83,12 +104,26 @@ This function should only modify configuration layer settings."
    ;; '(your-package :location "~/path/to/your-package/")
    ;; Also include the dependencies as they will not be resolved automatically.
    dotspacemacs-additional-packages '(
-                                      coverage
-                                      goose-theme
-                                      creamsody-theme
-                                      base16-theme
-                                      org-tree-slide
+                                      all-the-icons-dired
                                       all-the-icons-ivy
+                                      helm-org
+                                      org-tree-slide
+
+                                      ;; themes
+                                      base16-theme
+                                      creamsody-theme
+                                      goose-theme
+                                      flatui-theme
+                                      flatui-dark-theme
+                                      tao-theme
+
+                                      ;; ruby
+                                      coverage
+                                      ;; (minitest
+                                       ;; :location (recipe :fetcher github
+                                                         ;; :repo "gcentauri/minitest-emacs"
+                                                         ;; :branch "updates"))
+                                      ;; (chuck-mode :location local)
                                       )
 
    ;; A list of packages that cannot be updated.
@@ -217,8 +252,8 @@ It should only modify the values of Spacemacs settings."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press `SPC T n' to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(base16-unikitty-dark
-                         base16-unikitty-light)
+   dotspacemacs-themes '(base16-unikitty-light
+                         base16-unikitty-dark)
 
    ;; Set the theme for the Spaceline. Supported themes are `spacemacs',
    ;; `all-the-icons', `custom', `doom', `vim-powerline' and `vanilla'. The
@@ -228,16 +263,16 @@ It should only modify the values of Spacemacs settings."
    ;; spaceline theme. Value can be a symbol or list with additional properties.
    ;; (default '(spacemacs :separator wave :separator-scale 1.5))
    dotspacemacs-mode-line-theme '(all-the-icons :separator none :separator-scale 1)
+   ;; dotspacemacs-mode-line-theme 'spacemacs
 
    ;; If non-nil the cursor color matches the state color in GUI Emacs.
    ;; (default t)
    dotspacemacs-colorize-cursor-according-to-state nil
 
-   ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
-   ;; quickly tweak the mode-line size to make separators look not too crappy.
-   dotspacemacs-default-font '("Source Code Pro"
-                               :size 11
-                               :weight normal
+   ;; Default font or prioritized list of fonts.
+   dotspacemacs-default-font '("Victor Mono"
+                               :size 28
+                               :weight bold
                                :width normal)
 
    ;; The leader key (default "SPC")
@@ -245,7 +280,7 @@ It should only modify the values of Spacemacs settings."
 
    ;; The key used for Emacs commands `M-x' (after pressing on the leader key).
    ;; (default "SPC")
-   dotspacemacs-emacs-command-key ""
+   dotspacemacs-emacs-command-key "SPC"
 
    ;; The key used for Vim Ex commands (default ":")
    dotspacemacs-ex-command-key ":"
@@ -328,7 +363,7 @@ It should only modify the values of Spacemacs settings."
 
    ;; If non-nil the frame is fullscreen when Emacs starts up. (default nil)
    ;; (Emacs 24.4+ only)
-   dotspacemacs-fullscreen-at-startup t
+   dotspacemacs-fullscreen-at-startup nil
 
    ;; If non-nil `spacemacs/toggle-fullscreen' will not use native fullscreen.
    ;; Use to disable fullscreen animations in OSX. (default nil)
@@ -458,6 +493,13 @@ It should only modify the values of Spacemacs settings."
    ;; (default nil)
    dotspacemacs-whitespace-cleanup nil
 
+   ;; If non nil activate `clean-aindent-mode' which tries to correct
+   ;; virtual indentation of simple modes. This can interfer with mode specific
+   ;; indent handling like has been reported for `go-mode'.
+   ;; If it does deactivate it here.
+   ;; (default t)
+   dotspacemacs-use-clean-aindent-mode t
+
    ;; Either nil or a number of seconds. If non-nil zone out after the specified
    ;; number of seconds. (default nil)
    dotspacemacs-zone-out-when-idle nil
@@ -522,13 +564,26 @@ Set `spaceline-highlight-face-func' to
   (setq spaceline-highlight-face-func 'my-spaceline-highlight-face-modified)
 
   (spacemacs/toggle-vi-tilde-fringe-off)
-  (fringe-mode '(16 . 0))
+  (fringe-mode '(12 . 0))
 
   (with-eval-after-load 'org
     (org-babel-do-load-languages
      'org-babel-load-languages (quote ((emacs-lisp . t)
                                        (picolisp . t)
-                                       (dot . t)))))
+                                       (dot . t)
+                                       (ruby . t)
+                                       (shell . t)
+                                       (js . t)
+                                       (sql . t))))
+    (setq org-capture-templates '(
+                                  ("j" "Journal" entry (file+datetree "~/org/journal.org")
+                                   "* %?\nEntered on %U\n  %i\n  %a")
+                                  ("n" "Notes")
+                                  ("ne" "Emacs Note" entry (file+headline "" "Emacs"))
+                                  ("nr" "Ruby Note" entry (file+headline "" "Ruby"))
+                                  ("nw" "Web Note" entry (file+headline "" "Web")))
+          org-catch-invisible-edits "smart"
+          org-return-follows-link t))
 
   (require 'dash)
 
@@ -543,13 +598,13 @@ Set `spaceline-highlight-face-func' to
 
   (setq pretty-magit-alist nil)
   (setq pretty-magit-prompt nil)
-  (pretty-magit "Feature" ? (:foreground "slate gray" :height 1.2))
-  (pretty-magit "Add"     ? (:foreground "#375E97" :height 1.2))
+  (pretty-magit "Feature" ? (:foreground "slate gray" :height 1.2))
+  (pretty-magit "Add"     ? (:foreground "#375E97" :height 1.2))
   (pretty-magit "Fix"     ? (:foreground "#FB6542" :height 1.2))
-  (pretty-magit "Clean"   ? (:foreground "#FFBB00" :height 1.2))
+  (pretty-magit "Clean"   ? (:foreground "#FFBB00" :height 1.2))
   (pretty-magit "Docs"    ? (:foreground "#3F681C" :height 1.2))
-  ;; (pretty-magit "master"  ? (:box t :height 1.2) t)
-  ;; (pretty-magit "origin"  ? (:box t :height 1.2) t)
+  (pretty-magit "master"  ? (:box t :height 1.2) t)
+  (pretty-magit "origin"  ? (:box t :height 1.2) t)
 
   (defun add-magit-faces ()
     "Add face properties and compose symbols for buffer from pretty-magit."
@@ -569,17 +624,18 @@ Set `spaceline-highlight-face-func' to
   (advice-add 'magit-status :after 'add-magit-faces)
   (advice-add 'magit-refresh-buffer :after 'add-magit-faces)
 
-  (define-key ivy-minibuffer-map (kbd "C-o") 'hydra-ivy/body)
-  (all-the-icons-ivy-setup)
+  (with-eval-after-load 'ivy
+    (define-key ivy-minibuffer-map (kbd "C-o") 'hydra-ivy/body)
+    (all-the-icons-ivy-setup))
 
   ;; In order to get the picolisp-mode working correctly you have to
   ;; add the following expressions to your .emacs and adapt them
   ;; according to your set-up:
 
-  ;; (add-to-list 'load-path "/usr/share/picolisp/lib/el")
+  (add-to-list 'load-path "/home/shoshin/picolisp/lib/el")
   ;; (load "tsm.el") ;; Picolisp TransientSymbolsMarkup (*Tsm)
-  ;; (autoload 'run-picolisp "inferior-picolisp")
-  ;; (autoload 'picolisp-mode "picolisp" "Major mode for editing Picolisp." t)
+  (autoload 'run-picolisp "inferior-picolisp")
+  (autoload 'picolisp-mode "picolisp" "Major mode for editing Picolisp." t)
 
   ;; pil is more modern than plmod
   ;; (setq picolisp-program-name "<path-to>/picoLisp/plmod")
@@ -588,21 +644,27 @@ Set `spaceline-highlight-face-func' to
   ;; extensions up (greedy bastard).
   ;; So in order to get the correct file-association for picolisp
   ;; files you'll have to also add this:
-
-  ;; (add-to-list 'auto-mode-alist '("\\.l$" . picolisp-mode))
+  (add-to-list 'auto-mode-alist '("\\.l$" . picolisp-mode))
 
   ;; If you want, you can add a few hooks for convenience:
-  ;; (add-hook 'picolisp-mode-hook
-            ;; (lambda ()
-              ;; (paredit-mode +1) ;; Loads paredit mode automatically
+  (add-hook 'picolisp-mode-hook
+            (lambda ()
+              (paredit-mode +1) ;; Loads paredit mode automatically
               ;; (tsm-mode) ;; Enables TSM
-              ;; (define-key picolisp-mode-map (kbd "RET") 'newline-and-indent)
-              ;; (define-key picolisp-mode-map (kbd "C-h") 'paredit-backward-delete) ) )
+              (define-key picolisp-mode-map (kbd "RET") 'newline-and-indent)
+              (define-key picolisp-mode-map (kbd "C-h") 'paredit-backward-delete) ) )
 
   ;; TODO remove conflicting ; key paredit binding in xfk layers
   (add-hook 'paredit-mode-hook (lambda () (define-key paredit-mode-map ";" nil)))
 
+  (setq evil-lisp-state-enter-lisp-state-on-command nil)
+
   (setq inferior-lisp-program "/usr/bin/sbcl")
+
+  (add-to-list 'auto-mode-alist '("\\.ins$" . lisp-mode))
+  (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
+  ;; (require 'chuck-mode)
+  ;; (add-to-list 'auto-mode-alist '("\\.ck$" . chuck-mode))
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
@@ -617,20 +679,93 @@ This function is called at the very end of Spacemacs initialization."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(ansi-color-names-vector
+   ["#ecf0f1" "#e74c3c" "#2ecc71" "#f1c40f" "#2492db" "#9b59b6" "#1abc9c" "#2c3e50"])
  '(ansi-term-color-vector
    [unspecified "#2e2a31" "#d8137f" "#17ad98" "#dc8a0e" "#796af5" "#bb60ea" "#796af5" "#bcbabe"] t)
+ '(default-input-method "lakota-slo")
  '(evil-want-Y-yank-to-eol nil)
+ '(fci-rule-color "#201E14")
+ '(hl-paren-background-colors (quote ("#2492db" "#95a5a6" nil)))
+ '(hl-paren-colors (quote ("#ecf0f1" "#ecf0f1" "#c0392b")))
+ '(hl-todo-keyword-faces
+   (quote
+    (("TODO" . "#dc752f")
+     ("NEXT" . "#dc752f")
+     ("THEM" . "#2d9574")
+     ("PROG" . "#4f97d7")
+     ("OKAY" . "#4f97d7")
+     ("DONT" . "#f2241f")
+     ("FAIL" . "#f2241f")
+     ("DONE" . "#86dc2f")
+     ("NOTE" . "#b1951d")
+     ("KLUDGE" . "#b1951d")
+     ("HACK" . "#b1951d")
+     ("TEMP" . "#b1951d")
+     ("FIXME" . "#dc752f")
+     ("XXX+" . "#dc752f")
+     ("\\?\\?\\?+" . "#dc752f"))))
+ '(org-agenda-files (quote ("~/org/" "~/home.org")))
+ '(org-refile-targets (quote ((org-agenda-files :level . 1))))
  '(package-selected-packages
    (quote
-    (racket-mode faceup helm-gtags ggtags counsel-gtags company-quickhelp coverage edts erlang goose-theme all-the-icons-ivy csv-mode web-mode tagedit slim-mode scss-mode sass-mode pug-mode impatient-mode helm-css-scss haml-mode emmet-mode counsel-css company-web web-completion-data add-node-modules-path graphviz-dot-mode projectile-rails inflections feature-mode slime-company slime common-lisp-snippets picolisp-mode yaml-mode yasnippet-snippets xterm-color xah-fly-keys ws-butler writeroom-mode winum which-key wgrep web-beautify volatile-highlights vi-tilde-fringe uuidgen use-package treemacs-projectile toml-mode toc-org symon string-inflection spaceline-all-the-icons smex smeargle shell-pop seeing-is-believing rvm ruby-tools ruby-test-mode ruby-refactor ruby-hash-syntax rubocop rspec-mode robe restart-emacs request rbenv rake rainbow-delimiters racer prettier-js popwin persp-mode password-generator paradox overseer origami orgit org-tree-slide org-projectile org-present org-pomodoro org-mime org-download org-bullets org-brain open-junk-file ob-elixir nameless multi-term move-text mmm-mode minitest markdown-toc magit-svn magit-gitflow macrostep lorem-ipsum livid-mode link-hint json-navigator json-mode js2-refactor js-doc ivy-yasnippet ivy-xref ivy-purpose ivy-hydra indent-guide hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-make google-translate golden-ratio gnuplot gitignore-templates gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md fuzzy font-lock+ flycheck-rust flycheck-pos-tip flycheck-mix flycheck-credo flx-ido fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help enh-ruby-mode emojify emoji-cheat-sheet-plus elisp-slime-nav editorconfig dumb-jump dotenv-mode doom-modeline diminish diff-hl define-word creamsody-theme counsel-projectile company-tern company-statistics company-emoji column-enforce-mode clean-aindent-mode chruby centered-cursor-mode cargo bundler browse-at-remote base16-theme auto-yasnippet auto-highlight-symbol auto-compile alchemist aggressive-indent ace-link ac-ispell)))
+    (restclient-helm helm-xref helm-themes helm-swoop helm-purpose helm-projectile helm-org-rifle helm-org helm-mode-manager helm-lsp helm-ls-git helm-gitignore helm-git-grep helm-flx helm-descbinds helm-company helm-c-yasnippet helm-ag ace-jump-helm-line sunburn-theme emms company-box tide typescript-mode pytest pyenv-mode py-isort pippel pipenv pyvenv pip-requirements lsp-python-ms live-py-mode cython-mode company-anaconda anaconda-mode pythonic import-js grizzl ob-restclient ob-http company-restclient restclient know-your-http-well doom-themes dockerfile-mode docker tablist docker-tramp clojure-snippets cider-eval-sexp-fu cider sesman queue parseedn clojure-mode parseclj a ivy org-plus-contrib lolcode-mode cloud-theme berrys-theme all-the-icons-dired rjsx-mode erc-hl-nicks flatui-theme nofrils-acme-theme inkpot-theme lab-themes github-search github-clone gist gh marshal logito forge ghub closql emacsql-sqlite emacsql vmd-mode auto-org-md yapfify utop tuareg caml ocp-indent mvn meghanada maven-test-mode lsp-ui lsp-java importmagic epc ctable concurrent deferred groovy-mode groovy-imports pcache gradle-mode flycheck-ocaml merlin dune company-lsp lsp-mode blacken auto-complete-rst let-alist tao-theme racket-mode faceup helm-gtags ggtags counsel-gtags company-quickhelp coverage edts erlang goose-theme all-the-icons-ivy csv-mode web-mode tagedit slim-mode scss-mode sass-mode pug-mode impatient-mode helm-css-scss haml-mode emmet-mode counsel-css company-web web-completion-data add-node-modules-path graphviz-dot-mode projectile-rails inflections feature-mode slime-company slime common-lisp-snippets yaml-mode yasnippet-snippets xterm-color xah-fly-keys ws-butler writeroom-mode winum which-key wgrep web-beautify volatile-highlights vi-tilde-fringe uuidgen use-package toml-mode toc-org symon string-inflection spaceline-all-the-icons smex smeargle shell-pop seeing-is-believing rvm ruby-tools ruby-test-mode ruby-refactor ruby-hash-syntax rubocop rspec-mode robe restart-emacs request rbenv rake rainbow-delimiters racer prettier-js popwin persp-mode password-generator paradox overseer origami orgit org-tree-slide org-projectile org-present org-pomodoro org-mime org-download org-bullets org-brain open-junk-file ob-elixir nameless multi-term move-text mmm-mode minitest markdown-toc magit-svn magit-gitflow macrostep lorem-ipsum livid-mode link-hint json-navigator json-mode js2-refactor js-doc ivy-yasnippet ivy-xref ivy-purpose ivy-hydra indent-guide hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-make google-translate golden-ratio gnuplot gitignore-templates gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md fuzzy font-lock+ flycheck-rust flycheck-pos-tip flycheck-mix flycheck-credo flx-ido fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help enh-ruby-mode emojify emoji-cheat-sheet-plus elisp-slime-nav editorconfig dumb-jump dotenv-mode doom-modeline diminish diff-hl define-word creamsody-theme counsel-projectile company-tern company-statistics company-emoji column-enforce-mode clean-aindent-mode chruby centered-cursor-mode cargo bundler browse-at-remote base16-theme auto-yasnippet auto-highlight-symbol auto-compile alchemist aggressive-indent ace-link ac-ispell)))
  '(paradox-github-token t)
+ '(pdf-view-midnight-colors (quote ("#b2b2b2" . "#292b2e")))
  '(picolisp-documentation-directory "/home/grant/src/picoLisp/doc/")
  '(picolisp-pil-executable "/home/grant/src/picoLisp/pil")
  '(picolisp-pilindent-executable "/home/grant/src/picoLisp/bin/pilIndent")
  '(pos-tip-background-color "#1A3734")
  '(pos-tip-foreground-color "#FFFFC8")
- '(treemacs-fringe-indicator-mode t)
- '(treemacs-git-mode (quote simple)))
+ '(safe-local-variable-values
+   (quote
+    ((js-switch-indent-offest . 2)
+     (js2-strict-missing-semi-warning)
+     (minitest-docker-container . "pta-test")
+     (minitest-docker-container . pta-test)
+     (minitest-use-bundler)
+     (minitest-use-rails . t)
+     (minitest-docker-container . "test")
+     (minitest-use-docker . t)
+     (minitest-docker-command "docker-compose" "exec")
+     (javascript-backend . tern)
+     (javascript-backend . lsp)
+     (elixir-enable-compilation-checking . t)
+     (elixir-enable-compilation-checking))))
+ '(sml/active-background-color "#34495e")
+ '(sml/active-foreground-color "#ecf0f1")
+ '(sml/inactive-background-color "#dfe4ea")
+ '(sml/inactive-foreground-color "#34495e")
+ '(tao-theme-sepia-depth 5)
+ '(tao-theme-sepia-saturation 0.91)
+ '(tao-theme-use-sepia t)
+ '(vc-annotate-background "#17150C")
+ '(vc-annotate-color-map
+   (quote
+    ((20 . "#6A6858")
+     (40 . "#A7A58F")
+     (60 . "#A7A58F")
+     (80 . "#CCCAB1")
+     (100 . "#CCCAB1")
+     (120 . "#E3E1C6")
+     (140 . "#E3E1C6")
+     (160 . "#F1EFD3")
+     (180 . "#F1EFD3")
+     (200 . "#F1EFD3")
+     (220 . "#FAF8DB")
+     (240 . "#FAF8DB")
+     (260 . "#FAF8DB")
+     (280 . "#FFFDDF")
+     (300 . "#FFFDDF")
+     (320 . "#FFFDDF")
+     (340 . "#FFFFE3")
+     (360 . "#FFFFE3"))))
+ '(vc-annotate-very-old-color "#E3E1C6")
+ '(web-mode-attr-value-indent-offset 2)
+ '(web-mode-code-indent-offset 2)
+ '(web-mode-css-indent-offset 2)
+ '(web-mode-indent-style 2)
+ '(web-mode-markup-indent-offset 2))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
