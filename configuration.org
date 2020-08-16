@@ -1,54 +1,68 @@
 * Love Affair With an Editor
+
+Welcome to my attempt at literate configuration of the one and only Emacs.
+My goal is to edit this into a readable state that describes and illustrates
+one possible way of driving this wonderful system.
+
 * Packages
 ** list of packages (and themes) used in this config
 
 #+begin_src emacs-lisp
-  (defvar my-packages
-        '(
-          ;; utilities
-          all-the-icons
-          all-the-icons-ivy
-          company
-          company-box
-          counsel ;; includes ivy & swiper
-          counsel-projectile
-          docker
-          eglot
-          flycheck
-          ivy-hydra
-          ;; lsp-ivy
-          ;; lsp-mode
-          ;; lsp-ui
-          magit
-          perspective
-          projectile
-          smartparens
-          smex
-          undo-tree
-          which-key
-          xah-fly-keys
+      (defvar my-packages
+            '(
+              ;; utilities
+              all-the-icons
+              all-the-icons-ivy
+              company
+              company-box
+              counsel ;; includes ivy & swiper
+              counsel-projectile
+              docker
+              eglot
+              flycheck
+              ivy-hydra
+              magit
+              perspective
+              projectile
+              smartparens
+              smex
+              undo-tree
+              which-key
+              xah-fly-keys
 
-          ;; languages
+              ;; languages
 
-          ;; Common Lisp
-          sly
+              ;; Common Lisp
+              sly
 
-          ;; Ruby
-          enh-ruby-mode
-          inf-ruby
-          minitest
-          ))
+              ;; Ruby
+              enh-ruby-mode
+              inf-ruby
+              minitest
+              ))
 
-  (defvar my-themes
-        '(
-          goose-theme
-          lab-themes
-          sublime-themes
-          sunburn-theme
-          tao-theme
-          zenburn-theme
-          ))
+      (defvar my-themes
+            '(
+              goose-theme
+              kaolin-themes
+              lab-themes
+              sublime-themes
+              sunburn-theme
+              tao-theme
+              zenburn-theme
+              ))
 #+end_src
+
+*** TODO fix colorless themes with straight install?
+
+#+begin_src emacs-lisp
+(straight-use-package
+  '(colorless-themes :type git
+                     :repo "https://git.sr.ht/~lthms/colorless-themes.el"))
+#+end_src
+
+The theme files do not copy to the build directory, and the themes
+do not show up in my list of themes to load.
 
 ** Installing packages
 
@@ -61,6 +75,10 @@ if a package is already installed, etc.
 
 *** TODO research proper way to update packages etc
 
+  - =straight-check-all=
+  - =straight-pull-all=
+  - =straight-rebuild-all=
+
 *** TODO native compiling packages
 
 would be nice to have a way to automatically compile packages i've selected for it.
@@ -70,21 +88,210 @@ get compiled this way.
   - [ ] ask gccemacs author about this
   - [ ] write a script to compile things that need it (after install, update, etc)
 
-* Emacs GUI Options
+* Emacs Editing Configurations
+** xah-fly-keys
 
-Basic gui element preferences:
+ After experiencing some crippling Emacs pinky, i started looking at options for
+ different key bindings. one of the first things i came across was xah-fly-keys,
+ written by Xah Lee, a long time Emacs user who has written extensively about his
+ experiences and findings. fly keys seemed worth a try, and didn't clobber existing
+ bindings, so i could always fall back on muscle memory while learning.
+
+ it took some getting used to, but after a month i was proficient and have not
+ looked back. muscle memory changes, and this one is for the better. i've been
+ using it alongside Spacemacs, but it made it so i had several keymaps to learn
+ and doubling of bindings that aren't necessary. this config will attempt to use
+ xah's bindings while enhancing it with my own as needed.
+
+*** Initialization
+
+ by default, fly keys will use the control key for certain common bindings (CUA)
+ but i prefer to have it off. i set the variable to nil, require the package
+ (perhaps it could use some autoloads?), use the qwerty layout and turn it on:
+
+ #+begin_src emacs-lisp
+ (setq xah-fly-use-control-key nil)
+ (require 'xah-fly-keys)
+ (xah-fly-keys-set-layout "qwerty")
+ (xah-fly-keys 1)
+ #+end_src
+
+*** Enhancements
+
+ I like to configure a few visual cues to let me know if I'm in command
+ or insert mode. Here's one function each for when each mode turns on, which
+ are called with the appropriate hook. These toggle the line highlight and
+ change the cursor color and shape. Additionally, the way fly keys currently
+ works is that it erases xah-fly-key-map for insert mode (so everything
+ works like vanilla) and then remaps everything when command mode is turned
+ on. this has the effect of resetting any keys i want to bind in xah-fly-key-map.
+ so when command mode is turned on, i also set a few keys to call Ivy commands.
+
+ #+begin_src emacs-lisp
+ (defun xah-fly-keys-command-mode-on ()
+   (global-hl-line-mode 1)
+   (set-cursor-color "deep pink")
+   (setq cursor-type 'box)
+   (xah-fly--define-keys
+    xah-fly-key-map
+    '(
+      ("a" . counsel-M-x)
+      ("b" . swiper)
+      )))
+
+ (defun xah-fly-keys-insert-mode-on ()
+   (global-hl-line-mode 0)
+   (set-cursor-color "Dark Turquoise")
+   (setq cursor-type 'bar))
+
+ (add-hook 'xah-fly-command-mode-activate-hook 'xah-fly-keys-command-mode-on)
+ (add-hook 'xah-fly-insert-mode-activate-hook  'xah-fly-keys-insert-mode-on)
+ #+end_src
+
+*** Custom Key Maps and Bindings
+
+ Setting up a personal key map to put my own shortcuts in. Currently bound to
+ "SPC SPC" and "M-m" (like spacemacs). Currently, I'm associating keybindings
+ with the section where they apply, but it may make more sense to have a
+ complete map represented somewhere.
+
+ #+begin_src emacs-lisp
+   (defvar personal-key-map (make-sparse-keymap))
+   (define-prefix-command 'personal-key-map)
+   (define-key xah-fly-leader-key-map (kbd "SPC") personal-key-map)
+   (global-set-key (kbd "M-m") personal-key-map)
+ #+end_src
+
+y7 Now I can bind commands
+
+**** File Shortcuts
+
+ This config file
+
+ #+begin_src emacs-lisp
+   (defun my-configuration ()
+     (interactive)
+     (find-file (string-join `(,user-emacs-directory "configuration.org"))))
+
+   (define-key personal-key-map (kbd "c") 'my-configuration)
+ #+end_src
+
+**** Major Mode Keymaps
+
+ There's no good way to just bind some other key sequence to "C-c" which is
+ the prefix for most major modes. So I'm trying out some advice functions here
+ to check the mode and then bind a different personal major mode map to a key
+ in my personal key map. Its a bit buggy yet, but appears to work so far.
+ Each major mode i care about will get its own keymap with my most often used keys.
+
+ #+begin_src emacs-lisp
+   (defvar my-major-mode-maps nil)
+
+   (setq-default my-major-mode-maps
+                 '((org-mode my-org-keymap)
+                   (enh-ruby-mode my-ruby-keymap)
+                   (lisp-mode my-sly-keymap)
+                   (sly-mrepl-mode my-sly-keymap)))
+
+   (defun set-my-major-mode-map (&rest args)
+     (let ((map (cadr (assoc major-mode my-major-mode-maps))))
+       (define-key personal-key-map (kbd ",") map)))
+
+   (advice-add 'find-file :after #'set-my-major-mode-map)
+   (advice-add 'switch-to-buffer :after #'set-my-major-mode-map)
+   (advice-add 'xah-next-window-or-frame :after #'set-my-major-mode-map)
+ #+end_src
+
+*** COMMENT Give xah-fly-keys command map precedence over Slime
+
+ #+begin_src emacs-lisp
+ (with-eval-after-load 'slime
+   (push `(xah-fly-keys . ,xah-fly-key-map) minor-mode-map-alist))
+ #+end_src
+
+** Lakota Input
+ #+BEGIN_SRC emacs-lisp
+ (straight-use-package '(lakota-input :host github :repo "gcentauri/lakota-input"))
+ (require 'lakota-input)
+ #+END_SRC
+*** Faces for marking buffers
+
+ If you put a file into =enriched-mode= it seems like the text properties are saved
+ along with the buffer content. This allows for faces applied to text to be saved.
+ Its possible using the =highlight.el= package will be good enough for this.
+
+ I'm wondering if I should define a special =lakota-mode= to insert blocks into
+ org files, or if org-mode and enriched-mode can coexist.
+
+ Seems like =highlight.el= has some good ideas, but it will be more useful to me
+ to have a set of quick keybindings for adding faces to make examples of grammar
+ in emacs.
+
+**** Topic and Comment
+
+ #+BEGIN_SRC emacs-lisp
+ (defface topic
+   '((t (:background "red" :foreground "white")))
+   "Face for marking the topic grammar structures.")
+
+ (defface comment
+   '((t (:background "blue" :foreground "white")))
+   "Face for marking the comment grammar structures.")
+
+ (defun mark-topic ()
+   (interactive)
+   (add-face-text-property (region-beginning) (region-end) 'topic))
+
+ (defun mark-comment ()
+   (interactive)
+   (add-face-text-property (region-beginning) (region-end) 'comment))
+ #+END_SRC
+
+** Highlight trailing whitespace
+
+This is a feature I enjoyed in Spacemacs, so I borrowed it for my own config.
+This modifies the face for whitespace in all frames to highlight the background.
 
 #+begin_src emacs-lisp
-  (tool-bar-mode 0)
-  (menu-bar-mode 0)
-  (scroll-bar-mode 0)
-  (fringe-mode '(12 . 0))
-  (load-theme 'ritchie)
   (set-face-attribute 'trailing-whitespace nil
                       :background
                       (face-attribute 'font-lock-comment-face
                                       :foreground))
-  (setq show-trailing-whitespace t)
+#+end_src
+
+And this adds a hook to programming modes to toggle the =show-trailing-whitespace=
+variable on. You can add it to any mode you choose.
+
+#+begin_src emacs-lisp
+  (add-hook 'prog-mode-hook (lambda () (setq show-trailing-whitespace t)))
+#+end_src
+** TODO Turn off tabs
+
+ been having issues in javascript modes where tabs are being inserted.
+ this may or may not be a solution
+
+ #+begin_src emacs-lisp
+ (setq-default indent-tabs-mode nil)
+ #+end_src
+
+* Emacs GUI Options
+** Basic gui element preferences
+
+I prefer to turn off several things from the default gui:
+
+#+begin_src emacs-lisp
+  (blink-cursor-mode 0)
+  (tool-bar-mode 0)
+  (menu-bar-mode 0)
+  (scroll-bar-mode 0)
+#+end_src
+
+And with larger screens I can dedicate 16 pixels to the left
+fringe, which allows larger icons to show up for things like
+flycheck:
+
+#+begin_src emacs-lisp
+  (fringe-mode '(16 . 0))
 #+end_src
 
 ** Fonts
@@ -98,125 +305,15 @@ My preferred font setting (for now)
 (set-frame-font my-font nil t)
 #+end_src
 
-* xah-fly-keys
-
-After experiencing some crippling Emacs pinky, i started looking at options for
-different key bindings. one of the first things i came across was xah-fly-keys,
-written by Xah Lee, a long time Emacs user who has written extensively about his
-experiences and findings. fly keys seemed worth a try, and didn't clobber existing
-bindings, so i could always fall back on muscle memory while learning.
-
-it took some getting used to, but after a month i was proficient and have not
-looked back. muscle memory changes, and this one is for the better. i've been
-using it alongside Spacemacs, but it made it so i had several keymaps to learn
-and doubling of bindings that aren't necessary. this config will attempt to use
-xah's bindings while enhancing it with my own as needed.
-
-** Initialization
-
-by default, fly keys will use the control key for certain common bindings (CUA)
-but i prefer to have it off. i set the variable to nil, require the package
-(perhaps it could use some autoloads?), use the qwerty layout and turn it on:
+** TODO Theme initialization
+  - [ ] make a list of favored themes to pick randomly from
+  - [ ] perhaps choose light/dark theme based on time of day
 
 #+begin_src emacs-lisp
-(setq xah-fly-use-control-key nil)
-(require 'xah-fly-keys)
-(xah-fly-keys-set-layout "qwerty")
-(xah-fly-keys 1)
+  (load-theme 'kaolin-temple)
 #+end_src
 
-** Enhancements
-
-I like to configure a few visual cues to let me know if I'm in command
-or insert mode. Here's one function each for when each mode turns on, which
-are called with the appropriate hook. These toggle the line highlight and
-change the cursor color and shape. Additionally, the way fly keys currently
-works is that it erases xah-fly-key-map for insert mode (so everything
-works like vanilla) and then remaps everything when command mode is turned
-on. this has the effect of resetting any keys i want to bind in xah-fly-key-map.
-so when command mode is turned on, i also set a few keys to call Ivy commands.
-
-#+begin_src emacs-lisp
-(defun xah-fly-keys-command-mode-on ()
-  (global-hl-line-mode 1)
-  (set-cursor-color "deep pink")
-  (setq cursor-type 'box)
-  (xah-fly--define-keys
-   xah-fly-key-map
-   '(
-     ("a" . counsel-M-x)
-     ("b" . swiper)
-     )))
-
-(defun xah-fly-keys-insert-mode-on ()
-  (global-hl-line-mode 0)
-  (set-cursor-color "Dark Turquoise")
-  (setq cursor-type 'bar))
-
-(add-hook 'xah-fly-command-mode-activate-hook 'xah-fly-keys-command-mode-on)
-(add-hook 'xah-fly-insert-mode-activate-hook  'xah-fly-keys-insert-mode-on)
-#+end_src
-
-** Custom Key Maps and Bindings
-
-Setting up a personal key map to put my own shortcuts in. Currently bound to
-"SPC SPC" and "M-m" (like spacemacs). Currently, I'm associating keybindings
-with the section where they apply, but it may make more sense to have a
-complete map represented somewhere.
-
-#+begin_src emacs-lisp
-  (defvar personal-key-map (make-sparse-keymap))
-  (define-prefix-command 'personal-key-map)
-  (define-key xah-fly-leader-key-map (kbd "SPC") personal-key-map)
-  (global-set-key (kbd "M-m") personal-key-map)
-#+end_src
-
-*** File Shortcuts
-
-This config file
-
-#+begin_src emacs-lisp
-  (defun my-configuration ()
-    (interactive)
-    (find-file (string-join `(,user-emacs-directory "configuration.org"))))
-
-  (define-key personal-key-map (kbd "c") 'my-configuration)
-#+end_src
-
-*** Major Mode Keymaps
-
-There's no good way to just bind some other key sequence to "C-c" which is
-the prefix for most major modes. So I'm trying out some advice functions here
-to check the mode and then bind a different personal major mode map to a key
-in my personal key map. Its a bit buggy yet, but appears to work so far.
-Each major mode i care about will get its own keymap with my most often used keys.
-
-#+begin_src emacs-lisp
-  (defvar my-major-mode-maps nil)
-
-  (setq-default my-major-mode-maps
-                '((org-mode my-org-keymap)
-                  (enh-ruby-mode my-ruby-keymap)
-                  (lisp-mode my-sly-keymap)
-                  (sly-mrepl-mode my-sly-keymap)))
-
-  (defun set-my-major-mode-map (&rest args)
-    (let ((map (cadr (assoc major-mode my-major-mode-maps))))
-      (define-key personal-key-map (kbd ",") map)))
-
-  (advice-add 'find-file :after #'set-my-major-mode-map)
-  (advice-add 'switch-to-buffer :after #'set-my-major-mode-map)
-  (advice-add 'xah-next-window-or-frame :after #'set-my-major-mode-map)
-#+end_src
-
-** COMMENT Give xah-fly-keys command map precedence over Slime
-
-#+begin_src emacs-lisp
-(with-eval-after-load 'slime
-  (push `(xah-fly-keys . ,xah-fly-key-map) minor-mode-map-alist))
-#+end_src
-
-* Theme Switching
+** Theme Switching
 
 The default behavior of loading/enabling a theme in Emacs is to combine all the
 faces defined in =custom-enabled-themes=, with the front of the list having
@@ -234,17 +331,26 @@ any currently enabled theme before loading the next one.
 (define-key 'personal-key-map (kbd "t") 'load-theme)
 #+end_src
 
-* COMMENT LSP
-
-Settings to help improve performance of LSP mode (from the package readme)
+** Modeline
+I've decided to try out [[https://github.com/dbordak/telephone-line][telephone-line]] because it looks fun and customizable
 
 #+begin_src emacs-lisp
-(setq lsp-prefer-capf t)
-(setq gc-cons-threshold 100000000)
-(setq read-process-output-max (* 1024 1024))
+  (straight-use-package 'telephone-line)
+  (telephone-line-mode t)
+  ;; these work for xah fly keys somehow !!! :)
+  (set-face-background 'telephone-line-evil-normal "Deep Pink")
+  (set-face-background 'telephone-line-evil-insert "dark turquoise")
 #+end_src
 
-* Languages
+** Beacon
+helps highlight cursor when switching windows
+
+#+begin_src emacs-lisp
+  (straight-use-package 'beacon)
+  (beacon-mode 1)
+#+end_src
+
+* Programming Languages
 ** Common Lisp
 
 #+begin_src emacs-lisp
@@ -309,7 +415,7 @@ Trying out sly instead of slime, since i'm all "modern" now with emacs.
      ;; ("E" . slime-edit-value)
      ("h" . sly-documentation-lookup)
      ;; ("j" . slime-compile-and-load-file)
-     ;; ("m" . slime-compile-defun)
+     ("m" . sly-compile-defun)
      ;; ("M" . slime-eval-last-expression-display-output)
      ;; ("p" . slime-pprint-eval-last-expression)
      ;; ("r" . slime-interactive-eval)
@@ -320,7 +426,7 @@ Trying out sly instead of slime, since i'm all "modern" now with emacs.
 ** TODO Javascript
 
 #+begin_src emacs-lisp
-(add-hook 'js-mode-hook #'lsp)
+  (add-hook 'js-mode-hook #'flycheck-mode)
 #+end_src
 
 *** TODO Setup rjsx mode
@@ -328,10 +434,45 @@ Trying out sly instead of slime, since i'm all "modern" now with emacs.
 
 #+begin_src emacs-lisp
   (add-hook 'ruby-mode-hook #'enh-ruby-mode)
-  (add-hook 'enh-ruby-mode-hook 'eglot-ensure)
+  ;; (add-hook 'enh-ruby-mode-hook 'eglot-ensure)
   (add-hook 'enh-ruby-mode-hook 'flycheck-mode)
   ;; (add-hook 'enh-ruby-mode-hook #'lsp)
 #+end_src
+
+*** TODO Haml
+
+#+begin_src emacs-lisp
+  (straight-use-package 'haml-mode)
+  (add-hook 'haml-mode-hook 'flycheck-mode)
+#+end_src
+
+https://gist.github.com/mbreit/229d2528604af2f8db37
+
+This works, but doesn't respect project directory, which means no local rubocop.yml
+
+(flycheck-def-config-file-var flycheck-haml-lintrc haml-lint ".haml-lint.yml"
+  :safe #'stringp)
+
+(defun flycheck-haml-lint--find-project-root (checker)
+  (expand-file-name (flycheck-ruby--find-project-root checker)))
+
+(flycheck-define-command-checker 'haml-lint
+  "A haml-lint syntax checker"
+  :command '("haml-lint"
+             (config-file "--config" flycheck-haml-lintrc)
+             source)
+  :error-patterns '((warning line-start
+                    (file-name) ":" line " [W] "  (message)
+                    line-end))
+  :modes '(haml-mode)
+  :next-checker 'haml
+;; maybe this fixes it? (it does not)  :working-directory #'flycheck-haml-lint--find-project-root
+)
+
+;; this does work, perhaps i could get it to work in the checker code?
+(setenv "HAML_LINT_RUBOCOP_CONF" "/home/shoshin/unabridged/n2/pub_maintainer/.rubocop.yml")
+
+(add-to-list 'flycheck-checkers 'haml-lint)
 
 *** Personal Ruby Keymap
 
@@ -341,191 +482,181 @@ Trying out sly instead of slime, since i'm all "modern" now with emacs.
   (define-key my-ruby-keymap (kbd "t") 'minitest-verify)
 #+end_src
 
-* Company
+* Emacs Applications
+** Org Mode
+*** Personal Org Keymap
+ #+begin_src emacs-lisp
+   (defvar my-org-keymap (make-sparse-keymap))
+   (define-prefix-command 'my-org-keymap)
+   (define-key my-org-keymap (kbd "s") 'org-insert-structure-template)
+   (define-key my-org-keymap (kbd "'") 'org-edit-special)
+ #+end_src
 
-#+begin_src emacs-lisp
-(setq company-minimum-prefix-length 2
-      company-idle-delay 0.3) ;; default is 0.2
+*** Structure Templates
+ #+begin_src emacs-lisp
+ (add-to-list 'org-structure-template-alist '("se" . "src emacs-lisp"))
+ (add-to-list 'org-structure-template-alist '("sr" . "src ruby"))
+ #+end_src
 
-(add-hook 'after-init-hook 'global-company-mode)
-(add-hook 'company-mode-hook 'company-box-mode)
-#+end_src
+*** Org babel
 
-#+RESULTS:
-| company-mode-set-explicitly | company-box-mode |
+ #+begin_src emacs-lisp
+   (straight-use-package 'ob-restclient)
+   (org-babel-do-load-languages
+    'org-babel-load-languages
+    (quote ((emacs-lisp . t)
+            (picolisp . t)
+            (dot . t)
+            (ruby . t)
+            (shell . t)
+            (js . t)
+            (restclient . t))))
+ #+end_src
 
-*** TODO turn off or improve company in certain modes
-  - [ ] shell modes it can be quite annoying
+** Company
 
-* Org Mode
-** Personal Org Keymap
-#+begin_src emacs-lisp
-  (defvar my-org-keymap (make-sparse-keymap))
-  (define-prefix-command 'my-org-keymap)
-  (define-key my-org-keymap (kbd "s") 'org-insert-structure-template)
-  (define-key my-org-keymap (kbd "'") 'org-edit-special)
-#+end_src
+ #+begin_src emacs-lisp
+ (setq company-minimum-prefix-length 2
+       company-idle-delay 0.3) ;; default is 0.2
 
-** Structure Templates
-#+begin_src emacs-lisp
-(add-to-list 'org-structure-template-alist '("se" . "src emacs-lisp"))
-(add-to-list 'org-structure-template-alist '("sr" . "src ruby"))
-#+end_src
+ (add-hook 'after-init-hook 'global-company-mode)
+ (add-hook 'company-mode-hook 'company-box-mode)
+ #+end_src
 
-** Org babel
+**** TODO turn off or improve company in certain modes
+   - [ ] shell modes it can be quite annoying
 
-#+begin_src emacs-lisp
-  (straight-use-package 'ob-restclient)
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   (quote ((emacs-lisp . t)
-           (picolisp . t)
-           (dot . t)
-           (ruby . t)
-           (shell . t)
-           (js . t)
-           (restclient . t))))
-#+end_src
+** Ivy
 
-* Ivy
+ #+begin_src emacs-lisp
+ (ivy-mode 1)
+ (setq ivy-use-virtual-buffers t)
+ (setq ivy-count-format "(%d/%d) ")
+ (setq all-the-icons-ivy-file-commands
+       '(counsel-find-file counsel-file-jump counsel-recentf counsel-projectile-find-file counsel-projectile-find-dir))
+ (all-the-icons-ivy-setup)
+ (define-key xah-fly-c-keymap (kbd "e") 'counsel-find-file)
+ #+end_src
 
-#+begin_src emacs-lisp
-(ivy-mode 1)
-(setq ivy-use-virtual-buffers t)
-(setq ivy-count-format "(%d/%d) ")
-(setq all-the-icons-ivy-file-commands
-      '(counsel-find-file counsel-file-jump counsel-recentf counsel-projectile-find-file counsel-projectile-find-dir))
-(all-the-icons-ivy-setup)
-(define-key xah-fly-c-keymap (kbd "e") 'counsel-find-file)
-#+end_src
+** which-key
 
-* which-key
+ #+begin_src emacs-lisp
+ (which-key-mode 1)
+ #+end_src
 
-#+begin_src emacs-lisp
-(which-key-mode 1)
-#+end_src
+** magit
+*** Magit Shortcuts
+ Right now I only really need magit status:
 
-* magit
-** Magit Shortcuts
-Right now I only really need magit status:
+ #+begin_src emacs-lisp
+ (define-key 'personal-key-map (kbd "g") 'magit-status)
+ #+end_src
 
-#+begin_src emacs-lisp
-(define-key 'personal-key-map (kbd "g") 'magit-status)
-#+end_src
+ Eventually I might turn this into its own prefix map
 
-Eventually I might turn this into its own prefix map
+*** Pretty Magit
 
-** Pretty Magit
+ Took some code from the modernemacs guy that replaces strings in magit buffers
+ with pretty icons. Its a bit funky though, and you have to pick the /right/ icons,
+ otherwise they'll get replaced with another one for some unknown reason. There
+ was some report about it on the all-the-icons repo, so perhaps its fixable.
 
-Took some code from the modernemacs guy that replaces strings in magit buffers
-with pretty icons. Its a bit funky though, and you have to pick the /right/ icons,
-otherwise they'll get replaced with another one for some unknown reason. There
-was some report about it on the all-the-icons repo, so perhaps its fixable.
+ #+begin_src emacs-lisp
+ (defmacro pretty-magit (WORD ICON PROPS &optional NO-PROMPT?)
+   "Replace sanitized WORD with ICON, PROPS and by default add to prompts."
+   `(prog1
+        (add-to-list 'pretty-magit-alist
+                     (list (rx bow (group ,WORD (eval (if ,NO-PROMPT? "" ":"))))
+                           ,ICON ',PROPS))
+      (unless ,NO-PROMPT?
+        (add-to-list 'pretty-magit-prompt (concat ,WORD ": ")))))
 
-#+begin_src emacs-lisp
-(defmacro pretty-magit (WORD ICON PROPS &optional NO-PROMPT?)
-  "Replace sanitized WORD with ICON, PROPS and by default add to prompts."
-  `(prog1
-       (add-to-list 'pretty-magit-alist
-                    (list (rx bow (group ,WORD (eval (if ,NO-PROMPT? "" ":"))))
-                          ,ICON ',PROPS))
-     (unless ,NO-PROMPT?
-       (add-to-list 'pretty-magit-prompt (concat ,WORD ": ")))))
+ (setq pretty-magit-alist nil)
+ (setq pretty-magit-prompt nil)
 
-(setq pretty-magit-alist nil)
-(setq pretty-magit-prompt nil)
+ (pretty-magit "Feature" ? (:foreground "slate gray" :height 1.2))
+ (pretty-magit "Add"     ? (:foreground "#375E97" :height 1.2))
+ (pretty-magit "Fix"     ? (:foreground "#FB6542" :height 1.2))
+ (pretty-magit "Clean"   ? (:foreground "#FFBB00" :height 1.2))
+ (pretty-magit "Docs"    ? (:foreground "#3F681C" :height 1.2))
+ (pretty-magit "master"  ? (:foreground "LightSeaGreen" :box t :height 1.2) t)
+ (pretty-magit "origin"  ? (:foreground "LightSeaGreen" :box t :height 1.2) t)
 
-(pretty-magit "Feature" ? (:foreground "slate gray" :height 1.2))
-(pretty-magit "Add"     ? (:foreground "#375E97" :height 1.2))
-(pretty-magit "Fix"     ? (:foreground "#FB6542" :height 1.2))
-(pretty-magit "Clean"   ? (:foreground "#FFBB00" :height 1.2))
-(pretty-magit "Docs"    ? (:foreground "#3F681C" :height 1.2))
-(pretty-magit "master"  ? (:foreground "LightSeaGreen" :box t :height 1.2) t)
-(pretty-magit "origin"  ? (:foreground "LightSeaGreen" :box t :height 1.2) t)
+ (defun add-magit-faces ()
+     "Add face properties and compose symbols for buffer from pretty-magit."
+     (interactive)
+     (with-silent-modifications
+       (--each pretty-magit-alist
+         (-let (((rgx icon props) it))
+           (save-excursion
+             (goto-char (point-min))
+             (while (search-forward-regexp rgx nil t)
+               (compose-region
+                (match-beginning 1) (match-end 1) icon)
+               (when props
+                 (add-face-text-property
+                  (match-beginning 1) (match-end 1) props))))))))
 
-(defun add-magit-faces ()
-    "Add face properties and compose symbols for buffer from pretty-magit."
-    (interactive)
-    (with-silent-modifications
-      (--each pretty-magit-alist
-        (-let (((rgx icon props) it))
-          (save-excursion
-            (goto-char (point-min))
-            (while (search-forward-regexp rgx nil t)
-              (compose-region
-               (match-beginning 1) (match-end 1) icon)
-              (when props
-                (add-face-text-property
-                 (match-beginning 1) (match-end 1) props))))))))
+ (advice-add 'magit-status :after 'add-magit-faces)
+ (advice-add 'magit-refresh-buffer :after 'add-magit-faces)
+ #+end_src
 
-(advice-add 'magit-status :after 'add-magit-faces)
-(advice-add 'magit-refresh-buffer :after 'add-magit-faces)
-#+end_src
+** Projectile
 
-* Projectile
+ #+begin_src emacs-lisp
+ (setq projectile-completion-system 'ivy)
+ (projectile-mode 1)
+ (define-key 'personal-key-map (kbd "p") 'projectile-command-map)
+ #+end_src
 
-#+begin_src emacs-lisp
-(setq projectile-completion-system 'ivy)
-(projectile-mode 1)
-(define-key 'personal-key-map (kbd "p") 'projectile-command-map)
-#+end_src
+*** Integrate with Perspective
 
-** Integrate with Perspective
+ #+begin_src emacs-lisp
+ (straight-use-package 'persp-projectile)
+ (define-key projectile-command-map (kbd "l") 'projectile-persp-switch-project)
+ #+end_src
 
-#+begin_src emacs-lisp
-(straight-use-package 'persp-projectile)
-(define-key projectile-command-map (kbd "l") 'projectile-persp-switch-project)
-#+end_src
+ NOTE: this overwrites the binding for =projectile-find-file-in-directory=
 
-NOTE: this overwrites the binding for =projectile-find-file-in-directory=
+** Perspective-el
 
-* Perspective-el
+ #+begin_src emacs-lisp
+   (persp-mode 1)
+   (define-key 'xah-fly-leader-key-map (kbd "f") 'persp-counsel-switch-buffer)
+   (define-key 'personal-key-map (kbd "l") 'perspective-map)
+ #+end_src
 
-#+begin_src emacs-lisp
-  (persp-mode 1)
-  (define-key 'xah-fly-leader-key-map (kbd "f") 'persp-counsel-switch-buffer)
-  (define-key 'personal-key-map (kbd "l") 'perspective-map)
-#+end_src
+** Smartparens
 
-* Smartparens
+ #+begin_src emacs-lisp
+ (require 'smartparens-config)
+ (smartparens-global-mode 1)
+ (sp-local-pair 'sly-mrepl-mode "'" nil :actions nil)
+ #+end_src
 
-#+begin_src emacs-lisp
-(require 'smartparens-config)
-(smartparens-global-mode 1)
-(sp-local-pair 'sly-mrepl-mode "'" nil)
-#+end_src
+** Docker
 
-* TODO Turn off tabs
+ #+begin_src emacs-lisp
+ (define-key 'personal-key-map (kbd "d") 'docker)
+ #+end_src
+** Undo Tree
 
-been having issues in javascript modes where tabs are being inserted.
-this may or may not be a solution
+ #+begin_src emacs-lisp
+ (global-undo-tree-mode 1)
+ #+end_src
+** dired
+*** Add icons to dired
 
-#+begin_src emacs-lisp
-(setq-default indent-tabs-mode nil)
-#+end_src
+ I'm a sucker for the pretty icons everywhere.
 
-* Docker
+ #+begin_src emacs-lisp
+   (straight-use-package 'all-the-icons-dired)
+   (add-hook 'dired-mode 'all-the-icons-dired-mode)
+ #+end_src
 
-#+begin_src emacs-lisp
-(define-key 'personal-key-map (kbd "d") 'docker)
-#+end_src
-* Undo Tree
+** restclient
 
-#+begin_src emacs-lisp
-(global-undo-tree-mode 1)
-#+end_src
-* dired
-** Add icons to dired
+ #+begin_src emacs-lisp
+   (add-to-list 'auto-mode-alist '("\\.http\\'" . restclient-mode))
+ #+end_src
 
-I'm a sucker for the pretty icons everywhere.
-
-#+begin_src emacs-lisp
-  (straight-use-package 'all-the-icons-dired)
-  (add-hook 'dired-mode 'all-the-icons-dired-mode)
-#+end_src
-
-* restclient
-
-#+begin_src emacs-lisp
-  (add-to-list 'auto-mode-alist '("\\.http\\'" . restclient-mode))
-#+end_src
