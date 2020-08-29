@@ -484,6 +484,7 @@ This works, but doesn't respect project directory, which means no local rubocop.
   (defvar my-ruby-keymap (make-sparse-keymap))
   (define-prefix-command 'my-ruby-keymap)
   (define-key my-ruby-keymap (kbd "t") 'minitest-verify)
+  (define-key my-ruby-keymap (kbd "s") 'minitest-verify-single)
 #+end_src
 
 * Emacs Applications
