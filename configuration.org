@@ -585,7 +585,7 @@ This works, but doesn't respect project directory, which means no local rubocop.
  (pretty-magit "Clean"   ? (:foreground "#FFBB00" :height 1.2))
  (pretty-magit "Docs"    ? (:foreground "#3F681C" :height 1.2))
  (pretty-magit "main"    ? (:foreground "LightSeaGreen" :box t :height 1.2) t)
- (pretty-magit "origin"  ? (:foreground "LightSeaGreen" :box t :height 1.2) t)
+ (pretty-magit "origin"  ? (:foreground "LightSeaGreen" :box t :height 1.2) t)
 
  (defun add-magit-faces ()
      "Add face properties and compose symbols for buffer from pretty-magit."
