@@ -35,6 +35,10 @@ one possible way of driving this wonderful system.
               ;; Common Lisp
               sly
 
+              ;; Emacs Lisp
+              flycheck-package
+              package-lint
+
               ;; Ruby
               enh-ruby-mode
               inf-ruby
