@@ -278,82 +278,6 @@ variable on. You can add it to any mode you choose.
  (setq-default indent-tabs-mode nil)
  #+end_src
 
-* Emacs GUI Options
-** Basic gui element preferences
-
-I prefer to turn off several things from the default gui:
-
-#+begin_src emacs-lisp
-  (blink-cursor-mode 0)
-  (tool-bar-mode 0)
-  (menu-bar-mode 0)
-  (scroll-bar-mode 0)
-#+end_src
-
-And with larger screens I can dedicate 16 pixels to the left
-fringe, which allows larger icons to show up for things like
-flycheck:
-
-#+begin_src emacs-lisp
-  (fringe-mode '(16 . 0))
-#+end_src
-
-** Fonts
-
-My preferred font setting (for now)
-
-#+begin_src emacs-lisp
-(setq my-font "Victor Mono-14")
-
-(set-face-attribute 'default t :font my-font)
-(set-frame-font my-font nil t)
-#+end_src
-
-** TODO Theme initialization
-  - [ ] make a list of favored themes to pick randomly from
-  - [ ] perhaps choose light/dark theme based on time of day
-
-#+begin_src emacs-lisp
-  (load-theme 'kaolin-temple)
-#+end_src
-
-** Theme Switching
-
-The default behavior of loading/enabling a theme in Emacs is to combine all the
-faces defined in =custom-enabled-themes=, with the front of the list having
-precedence. This started annoying me when certain faces from one theme would
-interfere with the one I was trying to load. There are no hooks around loading
-or enabling themes (that i could find), so I wrote an advice function to disable
-any currently enabled theme before loading the next one.
-
-#+begin_src emacs-lisp
-(defun theme-switch (&rest args)
-  "Function to advise `load-theme' to ensure only a single theme is enabled."
-  (mapc 'disable-theme custom-enabled-themes))
-
-(advice-add 'load-theme :before #'theme-switch)
-(define-key 'personal-key-map (kbd "t") 'load-theme)
-#+end_src
-
-** Modeline
-I've decided to try out [[https://github.com/dbordak/telephone-line][telephone-line]] because it looks fun and customizable
-
-#+begin_src emacs-lisp
-  (straight-use-package 'telephone-line)
-  (telephone-line-mode t)
-  ;; these work for xah fly keys somehow !!! :)
-  (set-face-background 'telephone-line-evil-normal "Deep Pink")
-  (set-face-background 'telephone-line-evil-insert "dark turquoise")
-#+end_src
-
-** Beacon
-helps highlight cursor when switching windows
-
-#+begin_src emacs-lisp
-  (straight-use-package 'beacon)
-  (beacon-mode 1)
-#+end_src
-
 * Programming Languages
 ** Common Lisp
 
@@ -665,3 +589,124 @@ This works, but doesn't respect project directory, which means no local rubocop.
    (add-to-list 'auto-mode-alist '("\\.http\\'" . restclient-mode))
  #+end_src
 
+
+** mu4e
+
+#+begin_src emacs-lisp
+  (add-to-list 'load-path "/usr/share/emacs/site-lisp/mu4e")
+  (require 'mu4e)
+
+  (require 'smtpmail)
+  (setq message-send-mail-function 'smtpmail-send-it
+        starttls-use-gnutls t
+        smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
+        smtpmail-auth-credentials
+        '(("smtp.gmail.com" 587 "grant@unabridgedsoftware.com" nil))
+        smtpmail-default-smtp-server "smtp.gmail.com"
+        smtpmail-smtp-server "smtp.gmail.com"
+        smtpmail-smtp-service 587)
+
+#+end_src
+* Emacs GUI
+I'm putting this at the end, because its most likely to have order dependent 
+side effects than other configurations.
+** Basic gui element preferences
+
+I prefer to turn off several things from the default gui:
+
+#+begin_src emacs-lisp
+  (blink-cursor-mode 0)
+  (tool-bar-mode 0)
+  (menu-bar-mode 0)
+  (scroll-bar-mode 0)
+#+end_src
+
+And with larger screens I can dedicate 16 pixels to the left
+fringe, which allows larger icons to show up for things like
+flycheck:
+
+#+begin_src emacs-lisp
+  (fringe-mode '(16 . 0))
+#+end_src
+
+** TODO Theme initialization
+  - [ ] make a list of favored themes to pick randomly from
+  - [ ] perhaps choose light/dark theme based on time of day
+
+#+begin_src emacs-lisp
+  (load-theme 'kaolin-temple)
+#+end_src
+
+** Theme Switching
+
+The default behavior of loading/enabling a theme in Emacs is to combine all the
+faces defined in =custom-enabled-themes=, with the front of the list having
+precedence. This started annoying me when certain faces from one theme would
+interfere with the one I was trying to load. There are no hooks around loading
+or enabling themes (that i could find), so I wrote an advice function to disable
+any currently enabled theme before loading the next one.
+
+#+begin_src emacs-lisp
+(defun theme-switch (&rest args)
+  "Function to advise `load-theme' to ensure only a single theme is enabled."
+  (mapc 'disable-theme custom-enabled-themes))
+
+(advice-add 'load-theme :before #'theme-switch)
+(define-key 'personal-key-map (kbd "t") 'load-theme)
+#+end_src
+
+** Modeline
+I've decided to try out [[https://github.com/dbordak/telephone-line][telephone-line]] because it looks fun and customizable
+
+#+begin_src emacs-lisp
+  (straight-use-package 'telephone-line)
+  (telephone-line-mode t)
+  ;; these work for xah fly keys somehow !!! :)
+  (set-face-background 'telephone-line-evil-normal "Deep Pink")
+  (set-face-background 'telephone-line-evil-insert "dark turquoise")
+#+end_src
+
+** Beacon
+helps highlight cursor when switching windows
+
+#+begin_src emacs-lisp
+  (straight-use-package 'beacon)
+  (beacon-mode 1)
+#+end_src
+
+** SVG screenshot
+
+#+begin_src emacs-lisp
+  (defun screenshot-svg ()
+    (interactive)
+    (let* ((filename (make-temp-file "Emacs" nil ".svg"))
+           (data (x-export-frames nil 'svg)))
+      (with-temp-file filename
+        (insert data))
+      (kill-new filename)
+      (message filename)))
+#+end_src
+** Emoji
+
+Well... it is 2020 after all 😷
+
+*** Emojify package 
+#+begin_src emacs-lisp
+(straight-use-package 'emojify)
+#+end_src
+
+**** List of Modes to Emojify
+
+#+begin_src emacs-lisp
+(add-hook 'org-mode-hook #'emojify-mode)
+#+end_src
+
+** Fonts
+My preferred font setting (for now)
+
+#+begin_src emacs-lisp
+  (setq my-font "Victor Mono-14")
+
+  ;; (set-face-attribute 'default t :font my-font)
+  (set-frame-font my-font nil t)
+#+end_src
