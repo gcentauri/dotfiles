@@ -555,6 +555,8 @@ This works, but doesn't respect project directory, which means no local rubocop.
    (persp-mode 1)
    (define-key 'xah-fly-leader-key-map (kbd "f") 'persp-counsel-switch-buffer)
    (define-key 'personal-key-map (kbd "l") 'perspective-map)
+   ;; the default blue almost never works
+   (set-face-foreground 'persp-selected-face "indian red")
  #+end_src
 
 ** Smartparens
@@ -590,7 +592,6 @@ This works, but doesn't respect project directory, which means no local rubocop.
  #+begin_src emacs-lisp
    (add-to-list 'auto-mode-alist '("\\.http\\'" . restclient-mode))
  #+end_src
-
 
 ** mu4e
 
