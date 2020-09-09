@@ -217,7 +217,7 @@ y7 Now I can bind commands
 
 ** Lakota Input
  #+BEGIN_SRC emacs-lisp
- (straight-use-package '(lakota-input :host github :repo "gcentauri/lakota-input"))
+ (straight-use-package 'lakota-input)
  (require 'lakota-input)
  #+END_SRC
 *** Faces for marking buffers
