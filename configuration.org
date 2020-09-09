@@ -606,8 +606,24 @@ This works, but doesn't respect project directory, which means no local rubocop.
         smtpmail-smtp-service 465)
 #+end_src
 
+*** mu4e-alert
 
+allows notifications from mu4e
+
+#+begin_src emacs-lisp
+  (straight-use-package 'mu4e-alert)
+  (add-hook 'after-init-hook #'mu4e-alert-enable-mode-line-display)
+
+(setq mu4e-alert-interesting-mail-query
+      (concat
+       "flag:unread"
+       " AND NOT flag:trashed"
+       " AND maildir:"
+       "\"/Unabridged/INBOX\""
+       " AND maildir:"
+       "\"/ChurlsWorld/Inbox\""))
 #+end_src
+
 * Emacs GUI
 I'm putting this at the end, because its most likely to have order dependent 
 side effects than other configurations.
