@@ -673,6 +673,7 @@ any currently enabled theme before loading the next one.
 #+end_src
 
 ** Modeline
+*** COMMENT telephone-line
 I've decided to try out [[https://github.com/dbordak/telephone-line][telephone-line]] because it looks fun and customizable
 
 #+begin_src emacs-lisp
@@ -681,6 +682,20 @@ I've decided to try out [[https://github.com/dbordak/telephone-line][telephone-l
   ;; these work for xah fly keys somehow !!! :)
   (set-face-background 'telephone-line-evil-normal "Deep Pink")
   (set-face-background 'telephone-line-evil-insert "dark turquoise")
+#+end_src
+
+*** doom-mode-line
+
+#+begin_src emacs-lisp
+  (straight-use-package 'doom-modeline)
+  (setq
+   doom-modeline-buffer-encoding nil
+   doom-modeline-persp-name t
+   doom-modeline-height 35
+   doom-modeline-minor-modes t
+   doom-modeline-mu4e t)    ;; requires ‘mu4e-alert’ package.
+
+  (doom-modeline-mode)
 #+end_src
 
 ** Beacon
