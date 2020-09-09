@@ -50,6 +50,8 @@ one possible way of driving this wonderful system.
               goose-theme
               kaolin-themes
               lab-themes
+              modus-operandi-theme
+              modus-vivendi-theme
               sublime-themes
               sunburn-theme
               tao-theme
