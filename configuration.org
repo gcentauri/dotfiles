@@ -601,13 +601,11 @@ This works, but doesn't respect project directory, which means no local rubocop.
 
   (require 'smtpmail)
   (setq message-send-mail-function 'smtpmail-send-it
-        starttls-use-gnutls t
-        smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
-        smtpmail-auth-credentials
-        '(("smtp.gmail.com" 587 "grant@unabridgedsoftware.com" nil))
-        smtpmail-default-smtp-server "smtp.gmail.com"
-        smtpmail-smtp-server "smtp.gmail.com"
-        smtpmail-smtp-service 587)
+        smtpmail-stream-type 'ssl
+        smtpmail-smtp-server "smtp.migadu.com"
+        smtpmail-smtp-service 465)
+#+end_src
+
 
 #+end_src
 * Emacs GUI
