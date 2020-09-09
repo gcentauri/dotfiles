@@ -13,6 +13,10 @@
 
 (require 'org)
 
+(setq custom-file
+      (expand-file-name "custom.el" user-emacs-directory))
+(load-file custom-file)
+
 (org-babel-load-file
  (expand-file-name "configuration.org"
 		   user-emacs-directory))
