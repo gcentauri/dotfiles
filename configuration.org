@@ -698,6 +698,26 @@ I've decided to try out [[https://github.com/dbordak/telephone-line][telephone-l
   (doom-modeline-mode)
 #+end_src
 
+*** delight
+
+=(delight SPEC &optional VALUE FILE)=
+
+Modify the lighter value displayed in the mode line for the given mode SPEC
+if and when the mode is loaded.
+
+#+begin_src emacs-lisp
+  (straight-use-package 'delight)
+  (delight
+   '(
+     (company-box-mode " ☐" company-box)
+     (company-mode " ©" company)
+     (ivy-mode " ❦" ivy) ;;
+     (projectile-mode " ⁋" projectile)
+     (undo-tree-mode " ⎌" undo-tree)
+     (xah-fly-keys " ∑")
+     ))
+#+end_src
+
 ** Beacon
 helps highlight cursor when switching windows
 
