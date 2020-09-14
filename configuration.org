@@ -414,6 +414,53 @@ This works, but doesn't respect project directory, which means no local rubocop.
 #+end_src
 
 * Emacs Applications
+** mu4e
+
+=mu 1.4.13= package installed from source tarball and installed with
+=sudo make install=
+
+Rather than using the =mu4e= package from github, I'm using the version
+included with =mu=
+
+#+begin_src emacs-lisp
+  (add-to-list 'load-path "/usr/share/emacs/site-lisp/mu4e")
+  (require 'mu4e)
+  (setq mu4e-mu-binary "/usr/local/bin/mu")
+#+end_src
+
+*** TODO mu4e contexts
+
+#+begin_src emacs-lisp
+  (setq user-full-name "Grant Shoshin Shangreaux"
+        user-mail-address "grant@churls.world")
+#+end_src
+
+*** Migadu SMTP configuration
+#+begin_src emacs-lisp
+  (require 'smtpmail)
+  (setq message-send-mail-function 'smtpmail-send-it
+        smtpmail-stream-type 'ssl
+        smtpmail-smtp-server "smtp.migadu.com"
+        smtpmail-smtp-service 465)
+#+end_src
+
+*** mu4e-alert
+
+allows notifications from mu4e
+
+[[*doom-mode-line][doom-mode-line]] has a custom option to support this
+
+#+begin_src emacs-lisp
+  (straight-use-package 'mu4e-alert)
+  (add-hook 'after-init-hook #'mu4e-alert-enable-mode-line-display)
+
+  (setq mu4e-alert-interesting-mail-query
+        (concat
+         "flag:unread"
+         " AND NOT flag:trashed"
+         " AND maildir:"
+         "\"/ChurlsWorld/INBOX\""))
+#+end_src
 ** Org Mode
 *** Personal Org Keymap
  #+begin_src emacs-lisp
@@ -593,36 +640,6 @@ This works, but doesn't respect project directory, which means no local rubocop.
    (add-to-list 'auto-mode-alist '("\\.http\\'" . restclient-mode))
  #+end_src
 
-** mu4e
-
-#+begin_src emacs-lisp
-  (add-to-list 'load-path "/usr/share/emacs/site-lisp/mu4e")
-  (require 'mu4e)
-
-  (require 'smtpmail)
-  (setq message-send-mail-function 'smtpmail-send-it
-        smtpmail-stream-type 'ssl
-        smtpmail-smtp-server "smtp.migadu.com"
-        smtpmail-smtp-service 465)
-#+end_src
-
-*** mu4e-alert
-
-allows notifications from mu4e
-
-#+begin_src emacs-lisp
-  (straight-use-package 'mu4e-alert)
-  (add-hook 'after-init-hook #'mu4e-alert-enable-mode-line-display)
-
-(setq mu4e-alert-interesting-mail-query
-      (concat
-       "flag:unread"
-       " AND NOT flag:trashed"
-       " AND maildir:"
-       "\"/Unabridged/INBOX\""
-       " AND maildir:"
-       "\"/ChurlsWorld/Inbox\""))
-#+end_src
 
 * Emacs GUI
 I'm putting this at the end, because its most likely to have order dependent 
@@ -751,6 +768,7 @@ Well... it is 2020 after all 😷
 
 #+begin_src emacs-lisp
 (add-hook 'org-mode-hook #'emojify-mode)
+(add-hook 'mu4e-view-mode-hook #'emojify-mode)
 #+end_src
 
 ** Fonts
