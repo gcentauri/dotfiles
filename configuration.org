@@ -353,6 +353,23 @@ Trying out sly instead of slime, since i'm all "modern" now with emacs.
      ))
 #+end_src
 
+** PicoLisp
+Put your source directory here: 
+
+#+name: installdir
+#+begin_src emacs-lisp
+"/home/shoshin/picolisp"
+#+end_src
+
+#+begin_src shell :var installdir=installdir()
+  ln -s $installdir/man/man1/picolisp.1 /usr/share/man/man1 &&
+  ln -s $installdir/man/man1/pil.1 /usr/share/man/man1 &&
+  ln -s $installdir /usr/share/picolisp
+#+end_src
+
+#+RESULTS:
+
+
 ** TODO Javascript
 
 #+begin_src emacs-lisp
