@@ -795,6 +795,8 @@ I've decided to try out [[https://github.com/dbordak/telephone-line][telephone-l
 
 *** doom-mode-line
 
+I've moved to doom-mode-line because it is beautiful and effective.
+
 #+begin_src emacs-lisp
   (straight-use-package 'doom-modeline)
   (setq
@@ -807,9 +809,20 @@ I've decided to try out [[https://github.com/dbordak/telephone-line][telephone-l
   (doom-modeline-mode)
 #+end_src
 
+Because I've enabled minor modes and perpective names, i sometimes have
+an issue with space. [[*delight][delight]] helps minimize space taken by minor modes.
+I should also do something with [[*Perspective-el][perspectives]] as well.
+
+On the other hand, its relatively rare that the minor modes i have running
+are revealed to me by the modeline anyway, and persp names are generally 
+obvious to me. perhaps that clutter on the modeline is not necessary ;)
+
+Part of it is certainly aesthetics, but perhaps i should consider what use
+the modeline might be best put towards.
+
 *** delight
 
-=(delight SPEC &optional VALUE FILE)=
+~(delight SPEC &optional VALUE FILE)~
 
 Modify the lighter value displayed in the mode line for the given mode SPEC
 if and when the mode is loaded.
