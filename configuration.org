@@ -631,13 +631,25 @@ allows notifications from mu4e
 
 ** Perspective-el
 
+Perspective creates "workspaces" with isolated buffer lists. It also interacts
+with projectile, allowing easy opening of perspectives for a particular project.
+
  #+begin_src emacs-lisp
    (persp-mode 1)
    (define-key 'xah-fly-leader-key-map (kbd "f") 'persp-counsel-switch-buffer)
-   (define-key 'personal-key-map (kbd "l") 'perspective-map)
-   ;; the default blue almost never works
-   (set-face-foreground 'persp-selected-face "indian red")
  #+end_src
+
+Binding the perspective-map to my personal key map:
+
+#+begin_src emacs-lisp
+ (define-key 'personal-key-map (kbd "l") 'perspective-map)
+#+end_src
+
+And customizing the selected perspective face, the default is often poor:
+
+#+begin_src emacs-lisp
+  (set-face-foreground 'persp-selected-face "indian red")
+#+end_src
 
 ** Smartparens
 
