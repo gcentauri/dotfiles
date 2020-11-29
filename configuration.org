@@ -717,6 +717,16 @@ Marking several items and pressing E will open them all up for tag edits,
 and then you can ~M-x emms-tag-editor-set-all~ or ~C-c C-r~ to set the value
 of a tag on all of the marked tracks.
 
+** dumb-jump
+
+getting frustrated with LSP taking so much cpu, but missing jump-to-def, this
+package comes highly recommended
+
+#+begin_src emacs-lisp
+  (straight-use-package 'dumb-jump)
+  (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
+#+end_src
+
 
 * Emacs GUI
 I'm putting this at the end, because its most likely to have order dependent 
