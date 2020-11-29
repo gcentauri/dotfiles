@@ -727,6 +727,11 @@ package comes highly recommended
   (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
 #+end_src
 
+** Elpher - gopher/gemini client
+
+#+begin_src emacs-lisp
+(straight-use-package 'elpher)
+#+end_src
 
 * Emacs GUI
 I'm putting this at the end, because its most likely to have order dependent 
