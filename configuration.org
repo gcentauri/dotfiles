@@ -461,6 +461,16 @@ included with =mu=
         smtpmail-smtp-service 465)
 #+end_src
 
+*** check email with offlineimap
+
+this sets the mail command and runs the mu4e update. 
+=M-x mu4e-update-mail-and-index= will run the command, or press U
+in the mu4e main buffer
+
+#+begin_src emacs-lisp
+  (setq mu4e-get-mail-command "offlineimap -o")
+#+end_src
+
 *** mu4e-alert
 
 allows notifications from mu4e
