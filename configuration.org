@@ -430,6 +430,70 @@ This works, but doesn't respect project directory, which means no local rubocop.
   (define-key my-ruby-keymap (kbd "s") 'minitest-verify-single)
 #+end_src
 
+*** Docker flycheck
+
+this seems to work, but would be nice to figure out how to "officially"
+extend flycheck to work with linter binaries that are running inside a
+container
+
+#+begin_src emacs-lisp
+  ;; an example. there must be a better way :sob:
+  ;; (setq flycheck-rubocop-docker-app-path "/var/www/print_shop")
+
+  ;; perhaps just docker would be preferable?
+  (flycheck-def-executable-var ruby-docker-rubocop "docker-compose")
+
+  ;; not sure what a good default for this would be. perhaps there's a good
+  ;; way to use docker commands to find out. or parsing the dockerfile
+  (defcustom flycheck-rubocop-docker-app-path "/var/www/app"
+    "Set to project root for app inside the container")
+
+  ;; this provides the path for the config file /inside/ the container
+  ;; it exists locally too, but doesn't resolve properly :|
+  (flycheck-def-config-file-var flycheck-docker-rubocoprc
+      ruby-docker-rubocop
+      (concat (file-name-as-directory flycheck-rubocop-docker-app-path) flycheck-rubocoprc))
+
+  (flycheck-define-command-checker 'ruby-docker-rubocop
+    "A Ruby syntax and style checker using the RuboCop tool inside a docker container.
+
+  You need at least RuboCop 0.34 for this syntax checker.
+
+  See URL `http://batsov.com/rubocop/'."
+    :command `("docker-compose"
+               "exec"
+               ;; not a TTY
+               "-T"
+               ;; this would need to be configured for a different app name
+               "app"
+               "bin/rubocop"
+
+               ;; copied from basic rubocop config
+               "--display-cop-names"
+               "--force-exclusion"
+               "--format" "emacs"
+               ;; Explicitly disable caching to prevent Rubocop 0.35.1 and earlier
+               ;; from caching standard input.  Later versions of Rubocop
+               ;; automatically disable caching with --stdin, see
+               ;; https://github.com/flycheck/flycheck/issues/844 and
+               ;; https://github.com/bbatsov/rubocop/issues/2576
+               "--cache" "false"
+               ;; would be nice to get this to work with (config-file ..) if possible
+               "--config" ,flycheck-docker-rubocoprc
+               (option-flag "--lint" flycheck-rubocop-lint-only)
+               ;; Rubocop takes the original file name as argument when reading
+               ;; from standard input
+               "--stdin" source-original)
+    :standard-input t
+    :working-directory #'flycheck-ruby--find-project-root
+    :error-patterns flycheck-ruby-rubocop-error-patterns
+    :modes '(enh-ruby-mode ruby-mode)
+    :next-checkers '((warning . ruby-reek)
+                     (warning . ruby-rubylint)))
+
+  (add-to-list 'flycheck-checkers 'ruby-docker-rubocop)
+#+end_src
+
 * Emacs Applications
 ** mu4e
 
