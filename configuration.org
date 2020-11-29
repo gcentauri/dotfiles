@@ -685,6 +685,38 @@ And customizing the selected perspective face, the default is often poor:
    (add-to-list 'auto-mode-alist '("\\.http\\'" . restclient-mode))
  #+end_src
 
+** emms
+
+#+begin_src emacs-lisp
+  (straight-use-package 'emms)
+  (require 'emms-setup)
+  (emms-all)
+  (emms-default-players)
+  (setq emms-source-file-default-directory "~/Music/")
+  (add-to-list 'emms-info-functions #'emms-info-metaflac)
+#+end_src
+
+*** Markable Playlists
+
+For my use case of mass editing tags on audio files, it appears that I have to
+enable markable playlists. It isn't clear in the docstrings for the functions
+but, the info manual has this:
+
+#+begin_quote
+  emms-mark is also intent to provide a way for user to select tracks
+  for other command to operate on them.  Currently, 'emms-tag-editor.el'
+  uses the emms-mark to edit the tags of selected tracks
+#+end_quote
+
+#+begin_src emacs-lisp
+  (require 'emms-mark)
+#+end_src
+
+This allows marking items in playlists similarly to how dired works.
+Marking several items and pressing E will open them all up for tag edits,
+and then you can ~M-x emms-tag-editor-set-all~ or ~C-c C-r~ to set the value
+of a tag on all of the marked tracks.
+
 
 * Emacs GUI
 I'm putting this at the end, because its most likely to have order dependent 
