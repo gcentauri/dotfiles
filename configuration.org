@@ -518,6 +518,12 @@ allows notifications from mu4e
             (restclient . t))))
  #+end_src
 
+*** org-tree-slide
+
+#+begin_src emacs-lisp
+(straight-use-package 'org-tree-slide)
+#+end_src
+
 ** Company
 
  #+begin_src emacs-lisp
