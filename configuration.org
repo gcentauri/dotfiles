@@ -941,7 +941,10 @@ Well... it is 2020 after all 😷
 #+end_src
 
 ** Fonts
-My preferred font setting (for now)
+*** Monospace
+
+I've really enjoyed Victor Mono for coding, especially the cursive italics.
+Its a clean, classy font that brings me a bit of joy :)
 
 #+begin_src emacs-lisp
   (setq my-font "Victor Mono-14")
@@ -949,3 +952,26 @@ My preferred font setting (for now)
   ;; (set-face-attribute 'default t :font my-font)
   (set-frame-font my-font nil t)
 #+end_src
+
+Deja Vu Sans Mono was suggested as a good monospace font for handling special
+chars in different orthographies, and it does seem ok.
+
+*** Variable Pitch
+
+Been searching for a nice looking font for Lakota work, and the one I'm set
+on currently is Linux Libertine O, which handles all characters failry well.
+The macron on top of consonants can still be a bit funky on t̄ and k̄. but it
+is ok otherwise
+
+#+begin_src emacs-lisp
+  (set-face-attribute 'variable-pitch nil :family "Linux Libertine O")
+#+end_src
+
+* Testing
+** docker compose with composer.el
+
+(straight-use-package 'composer)
+
+
+
+
