@@ -206,6 +206,7 @@ y7 Now I can bind commands
    (advice-add 'find-file :after #'set-my-major-mode-map)
    (advice-add 'switch-to-buffer :after #'set-my-major-mode-map)
    (advice-add 'xah-next-window-or-frame :after #'set-my-major-mode-map)
+   (add-hook 'persp-switch-hook #'set-my-major-mode-map)
  #+end_src
 
 *** COMMENT Give xah-fly-keys command map precedence over Slime
